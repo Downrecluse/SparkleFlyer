@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Willow's Sparkle Quest</title>
+    <title>Sparkle Quest Village</title>
     <style>
         body {
             margin: 0;
@@ -29,7 +29,6 @@
             height: 100%;
             pointer-events: none;
             z-index: 10;
-            color: white;
         }
         #healthBar {
             position: absolute;
@@ -40,7 +39,6 @@
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
             overflow: hidden;
-            border: 2px solid rgba(255,255,255,0.5);
         }
         #healthFill {
             height: 100%;
@@ -52,20 +50,9 @@
             position: absolute;
             top: 20px;
             right: 20px;
+            color: white;
             font-size: 24px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        #powerUpIndicator {
-            position: absolute;
-            top: 55px;
-            left: 20px;
-            background: rgba(138, 43, 226, 0.7);
-            padding: 5px 10px;
-            border-radius: 8px;
-            display: none;
-            border: 1px solid white;
-            font-size: 14px;
-            text-shadow: 1px 1px 2px black;
         }
         #controls {
             position: absolute;
@@ -80,9 +67,10 @@
             right: 20px;
             pointer-events: auto;
         }
-        .action-btn {
+        #jumpBtn {
             width: 70px;
             height: 70px;
+            background: radial-gradient(circle, rgba(255,215,0,0.5) 0%, rgba(255,215,0,0.3) 70%);
             border: 2px solid rgba(255,255,255,0.5);
             border-radius: 50%;
             color: white;
@@ -93,14 +81,20 @@
             pointer-events: auto;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             margin-bottom: 10px;
-            cursor: pointer;
-            user-select: none;
-        }
-        #jumpBtn {
-            background: radial-gradient(circle, rgba(255,215,0,0.5) 0%, rgba(255,215,0,0.3) 70%);
         }
         #attackBtn {
+            width: 70px;
+            height: 70px;
             background: radial-gradient(circle, rgba(255,105,180,0.5) 0%, rgba(255,105,180,0.3) 70%);
+            border: 2px solid rgba(255,255,255,0.5);
+            border-radius: 50%;
+            color: white;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: auto;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
         }
         #questBtn {
             position: absolute;
@@ -115,7 +109,6 @@
             justify-content: center;
             pointer-events: auto;
             cursor: pointer;
-            font-size: 24px;
         }
         #questMenu {
             position: absolute;
@@ -123,42 +116,51 @@
             left: 50%;
             transform: translate(-50%, -50%);
             width: 80%;
-            max-width: 500px;
             max-height: 70%;
             background: rgba(0,0,0,0.7);
             border-radius: 15px;
             padding: 20px;
+            color: white;
             display: none;
             pointer-events: auto;
             overflow-y: auto;
             z-index: 100;
         }
-        .quest-item {
+        .quest-tabs {
             display: flex;
-            align-items: center;
-            margin-bottom: 8px;
+            margin-bottom: 15px;
         }
-        .quest-checkbox {
-            margin-right: 10px;
+        .quest-tab {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            margin-right: 5px;
+            border-radius: 5px;
+            cursor: pointer;
         }
-        .completed {
-            color: #AAAAAA;
-            text-decoration: line-through;
+        .quest-tab.active {
+            background: rgba(255,215,0,0.5);
         }
-        #gameOver, #levelComplete {
+        .quest-content {
+            display: none;
+        }
+        .quest-content.active {
+            display: block;
+        }
+        #gameOver {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.8);
+            color: white;
             padding: 30px;
             border-radius: 15px;
             text-align: center;
             display: none;
             pointer-events: auto;
-            z-index: 200;
+            z-index: 100;
         }
-        .game-over-btn {
+        #restartBtn {
             background: #FF5252;
             color: white;
             border: none;
@@ -166,12 +168,10 @@
             border-radius: 5px;
             margin-top: 20px;
             cursor: pointer;
-            font-size: 16px;
         }
         .emotion-bubble {
             position: absolute;
             background: white;
-            color: black;
             border-radius: 50%;
             width: 30px;
             height: 30px;
@@ -184,6 +184,44 @@
             transition: opacity 0.3s, transform 0.5s;
             pointer-events: none;
         }
+        .projectile {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: radial-gradient(circle, #FFD700, #FF69B4);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .sparkle-effect {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, rgba(255,215,0,0.8), rgba(255,105,180,0.5));
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            transform: scale(0);
+            animation: sparkle 0.5s ease-out;
+        }
+        @keyframes sparkle {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.7; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        .building-highlight {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.3);
+            pointer-events: none;
+            z-index: 2;
+            animation: highlight 1s;
+        }
+        @keyframes highlight {
+            0% { opacity: 0.7; }
+            100% { opacity: 0; }
+        }
         .touch-area {
             position: absolute;
             bottom: 0;
@@ -191,14 +229,21 @@
             background: rgba(255,255,255,0.0);
             pointer-events: auto;
         }
-        #left-touch { left: 0; width: 50%; }
-        #right-touch { right: 0; width: 50%; }
+        #left-touch {
+            left: 0;
+            width: 50%;
+        }
+        #right-touch {
+            right: 0;
+            width: 50%;
+        }
         .dialogue-box {
             position: absolute;
             bottom: 120px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
+            color: white;
             padding: 10px 15px;
             border-radius: 10px;
             max-width: 80%;
@@ -213,31 +258,30 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(43, 23, 10, 0.9);
+            background: #8B4513;
             display: none;
             z-index: 15;
             pointer-events: auto;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
         #miniGameContainer {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: rgba(0,0,0,0.8);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
-            width: 90%;
-            max-width: 400px;
         }
         #memoryGame {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(4, 60px);
+            grid-gap: 10px;
             margin: 20px auto;
         }
         .memory-card {
-            width: 100%;
-            aspect-ratio: 1 / 1;
+            width: 60px;
+            height: 60px;
             background: #FF69B4;
             border-radius: 5px;
             display: flex;
@@ -245,27 +289,60 @@
             justify-content: center;
             font-size: 24px;
             cursor: pointer;
-            transition: transform 0.3s;
-            transform-style: preserve-3d;
+            transition: all 0.3s;
         }
-        .memory-card .card-face {
+        .memory-card.flipped {
+            background: white;
+            transform: rotateY(180deg);
+        }
+        #miniGameMessage {
+            margin-top: 15px;
+            font-size: 18px;
+            color: white;
+        }
+        #exitInterior {
             position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
+            top: 20px;
+            right: 20px;
+            padding: 5px 10px;
+            background: #FF5252;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .quest-item {
             display: flex;
             align-items: center;
-            justify-content: center;
+            margin-bottom: 8px;
         }
-        .card-back { transform: rotateY(180deg); }
-        .memory-card.flipped { transform: rotateY(180deg); }
-        #shapeGame {
+        .quest-checkbox {
+            margin-right: 10px;
+        }
+        .completed {
+            color: #AAAAAA;
+            text-decoration: line-through;
+        }
+        #platformReward {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #FFAA00);
+            border-radius: 50%;
             display: none;
+            pointer-events: none;
+            z-index: 5;
+        }
+        #shapeGame {
+            display: flex;
             flex-direction: column;
             align-items: center;
             margin-top: 20px;
         }
-        .shape-row { display: flex; margin-bottom: 10px; }
+        .shape-row {
+            display: flex;
+            margin-bottom: 10px;
+        }
         .shape-option {
             width: 60px;
             height: 60px;
@@ -278,7 +355,9 @@
             font-size: 30px;
             cursor: pointer;
         }
-        .shape-option:hover { background: #FF69B4; }
+        .shape-option:hover {
+            background: #FF69B4;
+        }
         #shapeTarget {
             width: 100px;
             height: 100px;
@@ -290,31 +369,57 @@
             font-size: 50px;
             margin-bottom: 20px;
         }
-        #miniGameMessage { margin-top: 15px; font-size: 18px; min-height: 25px; }
-        #exitInteriorBtn {
-            margin-top: 20px;
-            padding: 8px 15px;
-            background: #FF5252;
+        #shapeMessage {
+            margin-top: 15px;
+            font-size: 18px;
+            color: white;
+        }
+        #victoryScreen {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            display: none;
+            pointer-events: auto;
+            z-index: 200;
+            width: 80%;
+            max-width: 500px;
+        }
+        #victoryScreen h2 {
+            color: gold;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px rgba(255,215,0,0.8);
+        }
+        #nextLevelBtn {
+            background: linear-gradient(to right, #FFD700, #FF69B4);
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 15px 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+            font-size: 20px;
             cursor: pointer;
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
         }
-        #levelTransition {
+        .sparkle-text {
+            background: linear-gradient(45deg, #FFD700, #FF69B4, #87CEEB);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 5px rgba(255,255,255,0.5);
+        }
+        .castle-door {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: black;
-            z-index: 500;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 1s ease-in-out;
+            width: 3px;
+            height: 6px;
+            background: rgba(139, 69, 19, 0.5);
+            z-index: 5;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -322,1056 +427,2694 @@
     <canvas id="gameCanvas"></canvas>
 
     <div id="ui">
-        <div id="healthBar"><div id="healthFill"></div></div>
+        <div id="healthBar">
+            <div id="healthFill"></div>
+        </div>
         <div id="score">0</div>
-        <div id="powerUpIndicator"></div>
-        <div id="questBtn">📜</div>
+        <div id="questBtn">📋</div>
         <div class="touch-area" id="left-touch"></div>
         <div class="touch-area" id="right-touch"></div>
 
         <div id="controls">
             <div id="actionButtons">
-                <div id="jumpBtn" class="action-btn">JUMP</div>
-                <div id="attackBtn" class="action-btn">SPARKLE</div>
+                <div id="jumpBtn">JUMP</div>
+                <div id="attackBtn">SPARKLE</div>
             </div>
         </div>
 
         <div id="questMenu">
-            <h3>Willow's Quest:</h3>
-            <ul id="objectivesList"></ul>
+            <div class="quest-tabs">
+                <div class="quest-tab active" data-tab="objectives">Objectives</div>
+                <div class="quest-tab" data-tab="inventory">Inventory</div>
+                <div class="quest-tab" data-tab="score">Score</div>
+            </div>
+
+            <div class="quest-content active" id="objectivesTab">
+                <h3>Your Quest:</h3>
+                <ul id="objectivesList">
+                </ul>
+            </div>
+
+            <div class="quest-content" id="inventoryTab">
+                <h3>Inventory:</h3>
+                <ul id="inventoryList">
+                </ul>
+            </div>
+
+            <div class="quest-content" id="scoreTab">
+                <h3>Your Progress:</h3>
+                <div id="scoreDetails">
+                    <p>Total Score: <span id="totalScore">0</span></p>
+                    <p>Level: <span id="gameLevel">1</span></p>
+                    <p>Completion: <span id="completion">0%</span></p>
+                </div>
+            </div>
         </div>
 
         <div id="gameOver">
             <h2>Game Over!</h2>
-            <p>Don't worry, Willow, every adventure has its challenges!</p>
-            <button id="restartBtn" class="game-over-btn">Try Again</button>
+            <p>Don't worry, every adventure has its challenges!</p>
+            <button id="restartBtn">Try Again</button>
         </div>
-        
-        <div id="levelComplete">
-            <h2>Level Complete!</h2>
-            <p>Well done, Willow! A new challenge awaits!</p>
-            <button id="nextLevelBtn" class="game-over-btn">Start Level 2</button>
+
+        <div id="victoryScreen">
+            <h2 class="sparkle-text">Congratulations!</h2>
+            <p>You've completed all the quests in Sparkle Quest Village!</p>
+            <p>Your final score: <span id="finalScore" class="sparkle-text">0</span></p>
+            <p>You are now ready to enter the Sparkle Academy!</p>
+            <button id="nextLevelBtn">Enter Sparkle Academy</button>
         </div>
 
         <div class="dialogue-box" id="dialogueBox"></div>
         
         <div id="interiorView">
+            <button id="exitInterior">Exit</button>
             <div id="miniGameContainer">
-                <h3 id="miniGameTitle">Mini-Game</h3>
-                <p id="miniGameDescription">Win a prize!</p>
-                
+                <h3>Memory Match Game</h3>
+                <p>Find all matching pairs to win a reward!</p>
                 <div id="memoryGame"></div>
-                <div id="shapeGame">
+                <div id="miniGameMessage"></div>
+                
+                <div id="shapeGame" style="display: none;">
+                    <h3>Shape Matching Game</h3>
+                    <p>Match the shape below!</p>
                     <div id="shapeTarget">?</div>
                     <div class="shape-row">
                         <div class="shape-option" data-shape="🔺">🔺</div>
                         <div class="shape-option" data-shape="🔵">🔵</div>
                         <div class="shape-option" data-shape="⭐">⭐</div>
                     </div>
+                    <div class="shape-row">
+                        <div class="shape-option" data-shape="❤️">❤️</div>
+                        <div class="shape-option" data-shape="🔶">🔶</div>
+                        <div class="shape-option" data-shape="🔷">🔷</div>
+                    </div>
+                    <div id="shapeMessage"></div>
                 </div>
-                
-                <div id="miniGameMessage"></div>
-                <button id="exitInteriorBtn">Exit House</button>
             </div>
         </div>
 
-        <div id="levelTransition">
-            <h2 id="levelTransitionText">Level 2</h2>
-        </div>
+        <div id="platformReward"></div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // --- SETUP & INITIALIZATION ---
+        // Game Initialization
         const canvas = document.getElementById('gameCanvas');
-        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        const renderer = new THREE.WebGLRenderer({ 
+            canvas, 
+            antialias: true,
+            powerPreference: "high-performance"
+        });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
         const scene = new THREE.Scene();
         scene.background = new THREE.Color('#87CEEB');
-        scene.fog = new THREE.Fog('#87CEEB', 50, 150);
+        scene.fog = new THREE.FogExp2('#87CEEB', 0.002);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         camera.position.set(0, 5, 10);
 
+        // Texture loader
         const textureLoader = new THREE.TextureLoader();
-        const groundTexture = textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
-        groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-        groundTexture.repeat.set(20, 20);
-
-        const brickTexture = textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
-        brickTexture.wrapS = brickTexture.wrapT = THREE.RepeatWrapping;
         
-        const woodTexture = textureLoader.load('https://threejs.org/examples/textures/wood/wood_512x512.jpg');
+        // Load textures with error handling
+        function loadTexture(url) {
+            const texture = textureLoader.load(url, undefined, undefined, function(err) {
+                console.error('Error loading texture:', url, err);
+            });
+            texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+            return texture;
+        }
 
-        // --- LIGHTING ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+        const groundTexture = loadTexture('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
+        groundTexture.repeat.set(10, 10);
+        
+        const woodTexture = loadTexture('https://threejs.org/examples/textures/wood/wood_512x512.jpg');
+        woodTexture.repeat.set(4, 4);
+        
+        const brickTexture = loadTexture('https://threejs.org/examples/textures/brick_diffuse.jpg');
+        brickTexture.repeat.set(2, 2);
+        
+        const stoneTexture = loadTexture('https://threejs.org/examples/textures/stone/stone.jpg');
+        stoneTexture.repeat.set(2, 2);
+
+        // Path textures
+        const cobblestoneTexture = loadTexture('https://threejs.org/examples/textures/brick_diffuse.jpg');
+        cobblestoneTexture.repeat.set(2, 2);
+        
+        const dirtTexture = loadTexture('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
+        dirtTexture.repeat.set(1, 1);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
         scene.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.9);
-        directionalLight.position.set(50, 60, 20); // Moved sun higher and to the side
-        directionalLight.castShadow = true;
-        directionalLight.shadow.mapSize.width = 2048;
-        directionalLight.shadow.mapSize.height = 2048;
-        directionalLight.shadow.camera.near = 0.5;
-        directionalLight.shadow.camera.far = 200;
-        directionalLight.shadow.camera.left = -100;
-        directionalLight.shadow.camera.right = 100;
-        directionalLight.shadow.camera.top = 100;
-        directionalLight.shadow.camera.bottom = -100;
 
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(10, 20, 10);
+        directionalLight.castShadow = true;
+        directionalLight.shadow.mapSize.width = 1024;
+        directionalLight.shadow.mapSize.height = 1024;
         scene.add(directionalLight);
 
-        // --- GAME OBJECTS & COLLECTIONS ---
-        let collidableObjects = [];
-        let enemies = [];
-        let friendlyNPCs = [];
-        let projectiles = [];
-        let houses = [];
-        let gems = [];
-        let currentMiniGameHouse = null;
-        let clouds = [];
+        // Ground with texture
+        const groundGeometry = new THREE.PlaneGeometry(200, 200);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            map: groundTexture,
+            roughness: 0.8,
+            metalness: 0.2
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
         
-        // Pre-allocated vectors for performance
-        const playerMoveDirection = new THREE.Vector3();
-        const cameraLookAt = new THREE.Vector3();
-        const tempVector = new THREE.Vector3();
-        const tempBox3 = new THREE.Box3();
+        // Collision detection
+        const collidableObjects = [];
+        const buildings = [];
+        const houseInteriors = [];
+        const platforms = [];
+        const paths = [];
+        
+        // Timer for debouncing interior entry
+        let lastInteriorInteractionTime = 0;
+        const interiorCooldown = 1000; // 1 second cooldown
 
-        // --- GAME STATE ---
+        // Trees
+        function createTree(x, z) {
+            const treeGroup = new THREE.Group();
+
+            // Trunk
+            const trunkGeometry = new THREE.CylinderGeometry(0.3, 0.4, 2, 12);
+            const trunkMaterial = new THREE.MeshStandardMaterial({ 
+                map: woodTexture,
+                roughness: 0.6
+            });
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
+            trunk.position.y = 1;
+            trunk.castShadow = true;
+            treeGroup.add(trunk);
+
+            // Leaves
+            const leavesGeometry = new THREE.SphereGeometry(1.5, 16, 16);
+            const leavesMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#228B22',
+                roughness: 0.5,
+                transparent: true,
+                opacity: 0.9
+            });
+            const leaves = new THREE.Mesh(leavesGeometry, leavesMaterial);
+            leaves.position.y = 3;
+            leaves.castShadow = true;
+            treeGroup.add(leaves);
+
+            treeGroup.position.set(x, 0, z);
+            scene.add(treeGroup);
+            
+            // Collision box
+            const trunkCollider = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.4, 0.4, 2, 8),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            trunkCollider.position.copy(trunk.position);
+            trunkCollider.position.y = 1;
+            scene.add(trunkCollider);
+            collidableObjects.push(trunkCollider);
+
+            return treeGroup;
+        }
+
+        // Create random trees
+        for (let i = 0; i < 20; i++) {
+            createTree(
+                (Math.random() - 0.5) * 180,
+                (Math.random() - 0.5) * 180
+            );
+        }
+
+        // Sparkle Academy Castle
+        const academyGroup = new THREE.Group();
+
+        // Main castle structure
+        const castleBaseGeometry = new THREE.BoxGeometry(15, 10, 15);
+        const castleBaseMaterial = new THREE.MeshStandardMaterial({
+            map: brickTexture,
+            roughness: 0.7,
+            metalness: 0.1
+        });
+        const castleBase = new THREE.Mesh(castleBaseGeometry, castleBaseMaterial);
+        castleBase.position.y = 5;
+        castleBase.castShadow = true;
+        castleBase.receiveShadow = true;
+        academyGroup.add(castleBase);
+
+        // Castle towers
+        const towerGeometry = new THREE.CylinderGeometry(2, 2, 15, 8);
+        const towerMaterial = new THREE.MeshStandardMaterial({
+            map: brickTexture,
+            roughness: 0.7
+        });
+        
+        const towerPositions = [
+            [6, 0, 6], [6, 0, -6], [-6, 0, 6], [-6, 0, -6]
+        ];
+        
+        for (const [x, z] of towerPositions) {
+            const tower = new THREE.Mesh(towerGeometry, towerMaterial);
+            tower.position.set(x, 7.5, z);
+            tower.castShadow = true;
+            academyGroup.add(tower);
+            
+            // Tower roofs
+            const roofGeometry = new THREE.ConeGeometry(2.5, 4, 8);
+            const roofMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x8B0000,
+                roughness: 0.5
+            });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.set(x, 15, z);
+            academyGroup.add(roof);
+        }
+
+        // Main castle roof
+        const mainRoofGeometry = new THREE.ConeGeometry(10, 6, 4);
+        const mainRoofMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0x8B0000,
+            roughness: 0.5
+        });
+        const mainRoof = new THREE.Mesh(mainRoofGeometry, mainRoofMaterial);
+        mainRoof.position.y = 15;
+        mainRoof.rotation.y = Math.PI / 4;
+        academyGroup.add(mainRoof);
+
+        // Castle entrance
+        const entranceGeometry = new THREE.BoxGeometry(5, 8, 3);
+        const entranceMaterial = new THREE.MeshStandardMaterial({
+            map: brickTexture,
+            roughness: 0.7
+        });
+        const entrance = new THREE.Mesh(entranceGeometry, entranceMaterial);
+        entrance.position.set(0, 4, 7.5);
+        academyGroup.add(entrance);
+
+        // Door
+        const doorGeometry = new THREE.BoxGeometry(3, 6, 0.2);
+        const doorMaterial = new THREE.MeshStandardMaterial({ 
+            color: '#8B4513',
+            roughness: 0.5
+        });
+        const door = new THREE.Mesh(doorGeometry, doorMaterial);
+        door.position.set(0, 3, 8.6);
+        academyGroup.add(door);
+
+        // Windows
+        const windowGeometry = new THREE.PlaneGeometry(2, 2);
+        const windowMaterial = new THREE.MeshStandardMaterial({
+            color: '#87CEEB',
+            emissive: '#87CEEB',
+            emissiveIntensity: 0.3,
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 0.8
+        });
+        
+        // Add windows to towers
+        for (const [x, z] of towerPositions) {
+            const window = new THREE.Mesh(windowGeometry, windowMaterial);
+            window.position.set(x, 10, z - 2.1);
+            window.rotation.y = Math.PI;
+            academyGroup.add(window);
+        }
+        
+        // Add windows to main castle
+        const mainWindowPositions = [
+            [5, 8, 0], [-5, 8, 0], [0, 8, 5], [0, 8, -5]
+        ];
+        
+        for (const [x, y, z] of mainWindowPositions) {
+            const window = new THREE.Mesh(windowGeometry, windowMaterial);
+            window.position.set(x, y, z);
+            if (x !== 0) {
+                window.rotation.y = Math.PI / 2 * Math.sign(x);
+            } else {
+                window.rotation.y = z > 0 ? 0 : Math.PI;
+            }
+            academyGroup.add(window);
+        }
+
+        // Sparkle effect at the top
+        const sparkleGeometry = new THREE.SphereGeometry(1, 16, 16);
+        const sparkleMaterial = new THREE.MeshStandardMaterial({
+            color: 0xFFD700,
+            emissive: 0xFFD700,
+            emissiveIntensity: 0.7,
+            transparent: true,
+            opacity: 0.9
+        });
+        const sparkle = new THREE.Mesh(sparkleGeometry, sparkleMaterial);
+        sparkle.position.set(0, 22, 0);
+        academyGroup.add(sparkle);
+
+        academyGroup.position.set(0, 0, -70);
+        scene.add(academyGroup);
+        
+        // Add collision box for academy
+        const academyCollider = new THREE.Mesh(
+            new THREE.BoxGeometry(15, 10, 15),
+            new THREE.MeshBasicMaterial({ visible: false })
+        );
+        academyCollider.position.copy(academyGroup.position);
+        academyCollider.position.y = 5;
+        scene.add(academyCollider);
+        collidableObjects.push(academyCollider);
+        buildings.push(academyGroup);
+
+        // Path creation function
+        function createPath(startX, startZ, endX, endZ, width = 3, isMainPath = false) {
+            const pathGroup = new THREE.Group();
+            
+            // Calculate path length and angle
+            const dx = endX - startX;
+            const dz = endZ - startZ;
+            const length = Math.sqrt(dx * dx + dz * dz);
+            const angle = Math.atan2(dz, dx);
+            
+            // Create path mesh
+            const pathGeometry = new THREE.PlaneGeometry(length, width, 1, 1);
+            const pathMaterial = new THREE.MeshStandardMaterial({
+                map: isMainPath ? cobblestoneTexture : dirtTexture,
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            const path = new THREE.Mesh(pathGeometry, pathMaterial);
+            path.rotation.x = -Math.PI / 2;
+            path.position.set((startX + endX) / 2, 0.01, (startZ + endZ) / 2);
+            path.rotation.y = -angle;
+            path.receiveShadow = true;
+            pathGroup.add(path);
+            
+            // Add edges for main paths
+            if (isMainPath) {
+                const edgeGeometry = new THREE.PlaneGeometry(length, 0.3);
+                const edgeMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x654321,
+                    roughness: 0.7
+                });
+                
+                const topEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                topEdge.position.set(0, 0.05, width/2 - 0.15);
+                topEdge.rotation.x = -Math.PI / 2;
+                topEdge.rotation.y = -angle;
+                pathGroup.add(topEdge);
+                
+                const bottomEdge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+                bottomEdge.position.set(0, 0.05, -width/2 + 0.15);
+                bottomEdge.rotation.x = -Math.PI / 2;
+                bottomEdge.rotation.y = -angle;
+                pathGroup.add(bottomEdge);
+            }
+            
+            scene.add(pathGroup);
+            paths.push(pathGroup);
+            
+            return pathGroup;
+        }
+
+        // Village path layout
+        function createVillagePaths() {
+            // Main paths (cobblestone)
+            createPath(-50, 0, 50, 0, 5, true);
+            createPath(0, -80, 0, 70, 5, true);
+            
+            // Connecting paths (dirt)
+            createPath(-20, 0, -20, 40, 3);
+            createPath(20, 0, 20, 40, 3);
+            createPath(-35, 25, 35, 25, 3);
+            
+            // Path to academy (cobblestone)
+            createPath(0, -10, 0, -65, 6, true);
+            
+            // Small paths (dirt)
+            createPath(-20, 40, -40, 25, 2);
+            createPath(20, 40, 40, 25, 2);
+            createPath(-15, 25, -15, 60, 2);
+            createPath(15, 25, 15, 60, 2);
+        }
+
+        // Houses with improved collision
+        function createHouse(x, z) {
+            const houseGroup = new THREE.Group();
+
+            // Base with brick texture
+            const baseGeometry = new THREE.BoxGeometry(6, 4, 6);
+            const baseMaterial = new THREE.MeshStandardMaterial({ 
+                map: brickTexture,
+                roughness: 0.6,
+                metalness: 0.1
+            });
+            const base = new THREE.Mesh(baseGeometry, baseMaterial);
+            base.position.y = 2;
+            base.castShadow = true;
+            base.receiveShadow = true;
+            houseGroup.add(base);
+
+            // Roof
+            const roofGeometry = new THREE.ConeGeometry(5, 3, 4);
+            const roofMaterial = new THREE.MeshStandardMaterial({ 
+                map: woodTexture,
+                roughness: 0.5
+            });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = 5.5;
+            roof.rotation.y = Math.PI / 4;
+            roof.castShadow = true;
+            houseGroup.add(roof);
+
+            // Door
+            const doorGeometry = new THREE.BoxGeometry(1, 2, 0.2);
+            const doorMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#8B4513',
+                roughness: 0.5
+            });
+            const door = new THREE.Mesh(doorGeometry, doorMaterial);
+            door.position.set(0, 1, 3.01);
+            houseGroup.add(door);
+
+            // Windows
+            const windowGeometry = new THREE.PlaneGeometry(1, 1);
+            const windowMaterial = new THREE.MeshStandardMaterial({
+                color: '#87CEEB',
+                emissive: '#87CEEB',
+                emissiveIntensity: 0.2,
+                side: THREE.DoubleSide,
+                transparent: true,
+                opacity: 0.8
+            });
+            const window1 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window1.position.set(-2, 2.5, 3.01);
+            houseGroup.add(window1);
+
+            const window2 = new THREE.Mesh(windowGeometry, windowMaterial);
+            window2.position.set(2, 2.5, 3.01);
+            houseGroup.add(window2);
+
+            houseGroup.position.set(x, 0, z);
+            scene.add(houseGroup);
+            
+            // Collision box (slightly smaller than visual)
+            const houseCollider = new THREE.Mesh(
+                new THREE.BoxGeometry(5.8, 3.8, 5.8),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            houseCollider.position.copy(houseGroup.position);
+            houseCollider.position.y = 2;
+            scene.add(houseCollider);
+            collidableObjects.push(houseCollider);
+            buildings.push(houseGroup);
+
+            // Create interior
+            const interiorGroup = new THREE.Group();
+            interiorGroup.position.set(x, 0, z);
+            interiorGroup.visible = false;
+            scene.add(interiorGroup);
+            
+            // Floor
+            const floorGeometry = new THREE.PlaneGeometry(5, 5);
+            const floorMaterial = new THREE.MeshStandardMaterial({ 
+                map: woodTexture,
+                roughness: 0.7
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            interiorGroup.add(floor);
+            
+            // Walls
+            const wallMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#F5DEB3',
+                roughness: 0.6
+            });
+            
+            const backWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 3),
+                wallMaterial
+            );
+            backWall.position.set(0, 1.5, -2.5);
+            backWall.rotation.y = Math.PI;
+            interiorGroup.add(backWall);
+            
+            const leftWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 3),
+                wallMaterial
+            );
+            leftWall.position.set(-2.5, 1.5, 0);
+            leftWall.rotation.y = Math.PI / 2;
+            interiorGroup.add(leftWall);
+            
+            const rightWall = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 3),
+                wallMaterial
+            );
+            rightWall.position.set(2.5, 1.5, 0);
+            rightWall.rotation.y = -Math.PI / 2;
+            interiorGroup.add(rightWall);
+            
+            // Ceiling
+            const ceiling = new THREE.Mesh(
+                new THREE.PlaneGeometry(5, 5),
+                new THREE.MeshStandardMaterial({ color: '#D2B48C' })
+            );
+            ceiling.position.set(0, 3, 0);
+            ceiling.rotation.x = Math.PI / 2;
+            interiorGroup.add(ceiling);
+            
+            // Furniture - Table
+            const tableGeometry = new THREE.BoxGeometry(1.5, 0.5, 1.5);
+            const tableMaterial = new THREE.MeshStandardMaterial({ 
+                map: woodTexture,
+                roughness: 0.5
+            });
+            const table = new THREE.Mesh(tableGeometry, tableMaterial);
+            table.position.set(0, 0.25, 0);
+            interiorGroup.add(table);
+            
+            // Furniture - Chair
+            const chairSeat = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.1, 0.8),
+                tableMaterial
+            );
+            chairSeat.position.set(1, 0.4, 0);
+            interiorGroup.add(chairSeat);
+            
+            const chairBack = new THREE.Mesh(
+                new THREE.BoxGeometry(0.8, 0.8, 0.1),
+                tableMaterial
+            );
+            chairBack.position.set(1, 0.8, 0.35);
+            interiorGroup.add(chairBack);
+            
+            houseInteriors.push({
+                exterior: houseGroup,
+                interior: interiorGroup,
+                position: new THREE.Vector3(x, 0, z),
+                doorPosition: new THREE.Vector3(x, 1, z + 3.01)
+            });
+
+            return houseGroup;
+        }
+
+        // Improved platform creation
+        function createPlatform(x, z, height, hasReward = true) {
+            const platformGroup = new THREE.Group();
+            
+            // Platform base (wider)
+            const platformGeometry = new THREE.BoxGeometry(5, 0.8, 5);
+            const platformMaterial = new THREE.MeshStandardMaterial({
+                map: stoneTexture,
+                roughness: 0.6
+            });
+            const platform = new THREE.Mesh(platformGeometry, platformMaterial);
+            platform.position.y = height;
+            platform.castShadow = true;
+            platform.receiveShadow = true;
+            platformGroup.add(platform);
+            
+            // Support pillars (thicker)
+            const pillarGeometry = new THREE.CylinderGeometry(0.8, 0.8, height, 8);
+            const pillarMaterial = new THREE.MeshStandardMaterial({
+                map: stoneTexture,
+                roughness: 0.7
+            });
+            
+            // Add four pillars at corners
+            const pillarPositions = [
+                [2, 2], [2, -2], [-2, 2], [-2, -2]
+            ];
+            
+            for (const [px, pz] of pillarPositions) {
+                const pillar = new THREE.Mesh(pillarGeometry, pillarMaterial);
+                pillar.position.set(px, height / 2, pz);
+                platformGroup.add(pillar);
+            }
+            
+            // Sparkle effect
+            if (hasReward) {
+                const sparkleGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+                const sparkleMaterial = new THREE.MeshStandardMaterial({
+                    color: 0xFFD700,
+                    emissive: 0xFFD700,
+                    emissiveIntensity: 0.5,
+                    transparent: true,
+                    opacity: 0.8
+                });
+                const sparkle = new THREE.Mesh(sparkleGeometry, sparkleMaterial);
+                sparkle.position.set(0, height + 0.5, 0);
+                platformGroup.add(sparkle);
+            }
+            
+            platformGroup.position.set(x, 0, z);
+            scene.add(platformGroup);
+            
+            // Add collision box for platform
+            const platformCollider = new THREE.Mesh(
+                new THREE.BoxGeometry(5, 0.8, 5),
+                new THREE.MeshBasicMaterial({ visible: false })
+            );
+            platformCollider.position.copy(platformGroup.position);
+            platformCollider.position.y = height;
+            scene.add(platformCollider);
+            
+            collidableObjects.push(platformCollider);
+            platforms.push({
+                mesh: platformGroup,
+                platform: platformCollider,
+                height: height,
+                hasReward: hasReward,
+                rewardCollected: false
+            });
+            
+            return platformGroup;
+        }
+
+        // Player Character
+        const playerGroup = new THREE.Group();
+        const playerCollider = new THREE.Box3();
+
+        // Body
+        const bodyGeometry = new THREE.CylinderGeometry(0.5, 0.5, 1.5, 16);
+        const bodyMaterial = new THREE.MeshStandardMaterial({
+            color: '#FFDAB9',
+            roughness: 0.4,
+            metalness: 0.1
+        });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.y = 0.75;
+        body.castShadow = true;
+        playerGroup.add(body);
+
+        // Head
+        const headGeometry = new THREE.SphereGeometry(0.5, 24, 24);
+        const headMaterial = new THREE.MeshStandardMaterial({
+            color: '#FFDAB9',
+            roughness: 0.3
+        });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.y = 1.8;
+        head.castShadow = true;
+        playerGroup.add(head);
+
+        // Face
+        const eyeGeometry = new THREE.SphereGeometry(0.08, 12, 12);
+        const eyeMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+        
+        const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        leftEye.position.set(-0.15, 1.85, 0.45);
+        playerGroup.add(leftEye);
+
+        const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+        rightEye.position.set(0.15, 1.85, 0.45);
+        playerGroup.add(rightEye);
+
+        // Mouth
+        const mouthGeometry = new THREE.TorusGeometry(0.1, 0.02, 8, 12, Math.PI);
+        const mouthMaterial = new THREE.MeshStandardMaterial({ color: '#FF6B6B' });
+        const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+        mouth.position.set(0, 1.75, 0.45);
+        mouth.rotation.x = Math.PI;
+        playerGroup.add(mouth);
+
+        // Hair
+        const hairGeometry = new THREE.PlaneGeometry(1.2, 0.5);
+        const hairMaterial = new THREE.MeshStandardMaterial({
+            color: '#8B4513',
+            side: THREE.DoubleSide
+        });
+        const hair = new THREE.Mesh(hairGeometry, hairMaterial);
+        hair.position.set(0, 2.0, -0.3);
+        hair.rotation.x = Math.PI / 4;
+        playerGroup.add(hair);
+
+        // Arms
+        const armGeometry = new THREE.CylinderGeometry(0.12, 0.12, 1, 12);
+        const armMaterial = new THREE.MeshStandardMaterial({ 
+            color: '#FFDAB9',
+            roughness: 0.4
+        });
+
+        const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+        leftArm.position.set(-0.7, 1.1, 0);
+        leftArm.rotation.z = Math.PI / 6;
+        playerGroup.add(leftArm);
+
+        const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+        rightArm.position.set(0.7, 1.1, 0);
+        rightArm.rotation.z = -Math.PI / 6;
+        playerGroup.add(rightArm);
+
+        // Legs
+        const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 1, 12);
+        const legMaterial = new THREE.MeshStandardMaterial({ 
+            color: '#4169E1',
+            roughness: 0.5
+        });
+
+        const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+        leftLeg.position.set(-0.3, 0.2, 0);
+        playerGroup.add(leftLeg);
+
+        const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+        rightLeg.position.set(0.3, 0.2, 0);
+        playerGroup.add(rightLeg);
+
+        // Cape
+        const capeGeometry = new THREE.PlaneGeometry(1.2, 1.5, 4, 4);
+        const capeVertices = capeGeometry.attributes.position;
+        for (let i = 0; i < capeVertices.count; i++) {
+            const x = capeVertices.getX(i);
+            const z = capeVertices.getZ(i);
+            capeVertices.setZ(i, z + Math.sin(x * 2) * 0.2);
+        }
+        capeGeometry.computeVertexNormals();
+        
+        const capeMaterial = new THREE.MeshStandardMaterial({
+            color: '#FF4500',
+            side: THREE.DoubleSide,
+            roughness: 0.7
+        });
+        const cape = new THREE.Mesh(capeGeometry, capeMaterial);
+        cape.position.set(0, 1.2, -0.6);
+        cape.rotation.y = Math.PI;
+        playerGroup.add(cape);
+
+        playerGroup.position.y = 1;
+        scene.add(playerGroup);
+
+        // Gems
+        const gems = [];
+        const gemGeometry = new THREE.OctahedronGeometry(0.5, 2);
+        const gemMaterial = new THREE.MeshStandardMaterial({
+            color: '#FFD700',
+            emissive: '#FFAA00',
+            emissiveIntensity: 0.5,
+            roughness: 0.1,
+            metalness: 0.9,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        const numGems = 20;
+        for (let i = 0; i < numGems; i++) {
+            const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+            gem.position.set(
+                (Math.random() - 0.5) * 180,
+                1,
+                (Math.random() - 0.5) * 180
+            );
+            gem.castShadow = true;
+            scene.add(gem);
+            gems.push({
+                mesh: gem,
+                collected: false,
+                rotationSpeed: Math.random() * 0.02 + 0.01
+            });
+        }
+
+        // Sparkle Globes
+        const sparkleGlobes = [];
+        const globeGeometry = new THREE.IcosahedronGeometry(0.7, 2);
+        const globeMaterial = new THREE.MeshStandardMaterial({
+            color: '#00FFFF',
+            emissive: '#00FFFF',
+            emissiveIntensity: 0.7,
+            roughness: 0.1,
+            metalness: 0.9,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        for (let i = 0; i < 5; i++) {
+            const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+            globe.position.set(
+                (Math.random() - 0.5) * 100,
+                2,
+                (Math.random() - 0.5) * 100
+            );
+            globe.castShadow = true;
+            scene.add(globe);
+            sparkleGlobes.push({
+                mesh: globe,
+                collected: false,
+                rotationSpeed: Math.random() * 0.03 + 0.02,
+                floatOffset: Math.random() * Math.PI * 2
+            });
+        }
+
+        // Enemies
+        const enemies = [];
+        let totalFriendlyNPCs = 0;
+
+        // Health bar for enemies
+        const healthBarOuterGeometry = new THREE.PlaneGeometry(1.2, 0.2);
+        const healthBarOuterMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const healthBarFillGeometry = new THREE.PlaneGeometry(1.0, 0.15);
+        const healthBarFillMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+
+        function createEnemyHealthBar() {
+            const healthBarGroup = new THREE.Group();
+
+            const outerBar = new THREE.Mesh(healthBarOuterGeometry, healthBarOuterMaterial);
+            healthBarGroup.add(outerBar);
+
+            const fillBar = new THREE.Mesh(healthBarFillGeometry, healthBarFillMaterial);
+            fillBar.position.x = -0.05;
+            healthBarGroup.add(fillBar);
+
+            healthBarGroup.position.y = 2.5;
+            healthBarGroup.visible = false;
+            return { group: healthBarGroup, fill: fillBar };
+        }
+
+        // Turtle Enemy
+        function createTurtle(x, z) {
+            const turtleGroup = new THREE.Group();
+
+            // Shell
+            const shellGeometry = new THREE.SphereGeometry(0.8, 24, 12, 0, Math.PI * 2, 0, Math.PI * 0.5);
+            const shellMaterial = new THREE.MeshStandardMaterial({
+                map: textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg'),
+                roughness: 0.6,
+                metalness: 0.1
+            });
+            const shell = new THREE.Mesh(shellGeometry, shellMaterial);
+            shell.position.y = 0.5;
+            shell.castShadow = true;
+            turtleGroup.add(shell);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#90EE90',
+                roughness: 0.5
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.set(0, 0.3, 0.8);
+            turtleGroup.add(head);
+
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.1, 0.35, 1.05);
+            turtleGroup.add(leftEye);
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.1, 0.35, 1.05);
+            turtleGroup.add(rightEye);
+
+            // Mouth
+            const mouthGeometry = new THREE.BoxGeometry(0.3, 0.1, 0.1);
+            const mouthMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 0.25, 0.9);
+            turtleGroup.add(mouth);
+
+            // Teeth
+            const toothGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+            const toothMaterial = new THREE.MeshStandardMaterial({ color: '#FFFFFF' });
+            for (let i = 0; i < 4; i++) {
+                const tooth = new THREE.Mesh(toothGeometry, toothMaterial);
+                tooth.position.set(-0.12 + (i * 0.08), 0.25, 0.95);
+                turtleGroup.add(tooth);
+            }
+
+            // Legs
+            const legGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.3, 8);
+            const legMaterial = new THREE.MeshStandardMaterial({ color: '#90EE90' });
+            
+            const positions = [
+                [-0.3, 0.1, 0.5], [0.3, 0.1, 0.5],  // Front legs
+                [-0.3, 0.1, -0.3], [0.3, 0.1, -0.3]  // Back legs
+            ];
+            
+            positions.forEach(pos => {
+                const leg = new THREE.Mesh(legGeometry, legMaterial);
+                leg.position.set(pos[0], pos[1], pos[2]);
+                turtleGroup.add(leg);
+            });
+
+            turtleGroup.position.set(x, 0, z);
+            scene.add(turtleGroup);
+            
+            // Patrol points for movement
+            const patrolPoints = [
+                new THREE.Vector3(x, 0, z),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5)),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5)),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5))
+            ];
+
+            const healthBar = createEnemyHealthBar();
+            turtleGroup.add(healthBar.group);
+
+            return {
+                type: 'turtle',
+                mesh: turtleGroup,
+                health: 1,
+                maxHealth: 1,
+                speed: 0.02,
+                patrolPoints: patrolPoints,
+                currentPatrolIndex: 0,
+                isChasing: false,
+                detectionRange: 8,
+                damage: 10,
+                defeated: false,
+                lastAttackTime: 0,
+                attackCooldown: 1500,
+                healthBar: healthBar
+            };
+        }
+
+        // Goober Enemy
+        function createGoober(x, z) {
+            const gooberGroup = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.SphereGeometry(0.7, 24, 24);
+            const bodyMaterial = new THREE.MeshStandardMaterial({
+                color: '#8A2BE2',
+                transparent: true,
+                opacity: 0.9,
+                roughness: 0.3,
+                metalness: 0.2
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.7;
+            body.castShadow = true;
+            gooberGroup.add(body);
+
+            // Eye
+            const eyeGeometry = new THREE.SphereGeometry(0.25, 16, 16);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#FFFFFF',
+                roughness: 0.1
+            });
+            const eye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye.position.set(0, 0.8, 0.6);
+            gooberGroup.add(eye);
+
+            const pupilGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            const pupilMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const pupil = new THREE.Mesh(pupilGeometry, pupilMaterial);
+            pupil.position.set(0, 0.8, 0.8);
+            gooberGroup.add(pupil);
+
+            // Mouth
+            const mouthGeometry = new THREE.TorusGeometry(0.15, 0.03, 8, 12, Math.PI);
+            const mouthMaterial = new THREE.MeshStandardMaterial({ color: '#FF0000' });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 0.5, 0.7);
+            mouth.rotation.x = Math.PI;
+            gooberGroup.add(mouth);
+
+            gooberGroup.position.set(x, 0, z);
+            scene.add(gooberGroup);
+            
+            const healthBar = createEnemyHealthBar();
+            gooberGroup.add(healthBar.group);
+
+            return {
+                type: 'goober',
+                mesh: gooberGroup,
+                health: 3,
+                maxHealth: 3,
+                speed: 0.04,
+                initialPosition: new THREE.Vector3(x, 0, z),
+                isChasing: false,
+                detectionRange: 15,
+                damage: 15,
+                defeated: false,
+                lastAttackTime: 0,
+                attackCooldown: 1000,
+                healthBar: healthBar
+            };
+        }
+
+        // Bully Enemy
+        function createBully(x, z) {
+            const bullyGroup = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.BoxGeometry(1, 2, 0.8);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#B22222',
+                roughness: 0.6
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 1;
+            body.castShadow = true;
+            bullyGroup.add(body);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.5, 24, 24);
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#FFDAB9',
+                roughness: 0.4
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 2.2;
+            bullyGroup.add(head);
+
+            // Eyes
+            const eyeGeometry = new THREE.SphereGeometry(0.06, 8, 8);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.15, 2.25, 0.45);
+            bullyGroup.add(leftEye);
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.15, 2.25, 0.45);
+            bullyGroup.add(rightEye);
+
+            // Eyebrows
+            const eyebrowGeometry = new THREE.BoxGeometry(0.2, 0.05, 0.05);
+            const eyebrowMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const leftEyebrow = new THREE.Mesh(eyebrowGeometry, eyebrowMaterial);
+            leftEyebrow.position.set(-0.2, 2.35, 0.4);
+            leftEyebrow.rotation.z = Math.PI / 6;
+            bullyGroup.add(leftEyebrow);
+            const rightEyebrow = new THREE.Mesh(eyebrowGeometry, eyebrowMaterial);
+            rightEyebrow.position.set(0.2, 2.35, 0.4);
+            rightEyebrow.rotation.z = -Math.PI / 6;
+            bullyGroup.add(rightEyebrow);
+
+            // Mouth
+            const mouthGeometry = new THREE.BoxGeometry(0.4, 0.1, 0.1);
+            const mouthMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 2.0, 0.45);
+            bullyGroup.add(mouth);
+
+            // Teeth
+            const toothGeometry = new THREE.BoxGeometry(0.05, 0.05, 0.05);
+            const toothMaterial = new THREE.MeshStandardMaterial({ color: '#FFFFFF' });
+            for (let i = 0; i < 4; i++) {
+                const tooth = new THREE.Mesh(toothGeometry, toothMaterial);
+                tooth.position.set(-0.15 + (i * 0.1), 1.95, 0.5);
+                bullyGroup.add(tooth);
+            }
+
+            // Hair
+            const hairConeGeometry = new THREE.ConeGeometry(0.15, 0.4, 6);
+            const hairMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#663399',
+                roughness: 0.5
+            });
+            
+            const hairPositions = [
+                [-0.2, 2.6, 0.2], [0.2, 2.6, 0.2],
+                [-0.3, 2.5, -0.1], [0.3, 2.5, -0.1],
+                [0, 2.7, 0]
+            ];
+            
+            hairPositions.forEach(pos => {
+                const hair = new THREE.Mesh(hairConeGeometry, hairMaterial);
+                hair.position.set(pos[0], pos[1], pos[2]);
+                hair.rotation.z = (Math.random() - 0.5) * Math.PI / 4;
+                bullyGroup.add(hair);
+            });
+
+            bullyGroup.position.set(x, 0, z);
+            scene.add(bullyGroup);
+            
+            const healthBar = createEnemyHealthBar();
+            bullyGroup.add(healthBar.group);
+
+            return {
+                type: 'bully',
+                mesh: bullyGroup,
+                health: 5,
+                maxHealth: 5,
+                speed: 0.05,
+                initialPosition: new THREE.Vector3(x, 0, z),
+                isChasing: false,
+                detectionRange: 20,
+                damage: 25,
+                defeated: false,
+                lastAttackTime: 0,
+                attackCooldown: 2000,
+                healthBar: healthBar
+            };
+        }
+
+        // Friendly NPCs
+        const friendlyNPCs = [];
+        const npcDialogue = {
+            "Willow": ["Hi, I'm Willow!", "Nice to meet you!", "The Sparkle Academy is that way!"],
+            "Finn": ["I'm Finn, how are you?", "Watch out for the bullies!", "Collect gems to level up!"],
+            "Luna": ["Luna here! Welcome!", "The turtles are slow but persistent.", "You can jump on enemies to hurt them!"]
+        };
+
+        function createFriendlyNPC(x, z, name) {
+            const npcGroup = new THREE.Group();
+
+            // Body
+            const bodyGeometry = new THREE.CylinderGeometry(0.4, 0.4, 1.3, 16);
+            const bodyMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#C0C0C0',
+                metalness: 0.3,
+                roughness: 0.4
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            body.position.y = 0.65;
+            npcGroup.add(body);
+
+            // Head
+            const headGeometry = new THREE.SphereGeometry(0.4, 24, 24);
+            const headMaterial = new THREE.MeshStandardMaterial({ 
+                color: '#FFDAB9',
+                roughness: 0.3
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.position.y = 1.6;
+            npcGroup.add(head);
+
+            // Face features
+            const eyeGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+            const eyeMaterial = new THREE.MeshStandardMaterial({ color: '#000000' });
+            
+            const leftEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            leftEye.position.set(-0.1, 1.65, 0.35);
+            npcGroup.add(leftEye);
+            
+            const rightEye = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            rightEye.position.set(0.1, 1.65, 0.35);
+            npcGroup.add(rightEye);
+            
+            const mouthGeometry = new THREE.TorusGeometry(0.08, 0.02, 8, 12, Math.PI);
+            const mouthMaterial = new THREE.MeshStandardMaterial({ color: '#FF6B6B' });
+            const mouth = new THREE.Mesh(mouthGeometry, mouthMaterial);
+            mouth.position.set(0, 1.55, 0.35);
+            mouth.rotation.x = Math.PI;
+            npcGroup.add(mouth);
+
+            // Random accessory
+            const randAcc = Math.random();
+            if (randAcc < 0.33) { // Hat
+                const hatGeometry = new THREE.ConeGeometry(0.5, 0.7, 8);
+                const hatMaterial = new THREE.MeshStandardMaterial({ 
+                    color: '#00BFFF',
+                    roughness: 0.5
+                });
+                const hat = new THREE.Mesh(hatGeometry, hatMaterial);
+                hat.position.y = 2.2;
+                npcGroup.add(hat);
+                
+                const hatBandGeometry = new THREE.TorusGeometry(0.5, 0.05, 8, 16);
+                const hatBandMaterial = new THREE.MeshStandardMaterial({ color: '#FFD700' });
+                const hatBand = new THREE.Mesh(hatBandGeometry, hatBandMaterial);
+                hatBand.position.y = 1.9;
+                hatBand.rotation.x = Math.PI / 2;
+                npcGroup.add(hatBand);
+            } else if (randAcc < 0.66) { // Bow
+                const bowPart = new THREE.BoxGeometry(0.3, 0.1, 0.05);
+                const bowMaterial = new THREE.MeshStandardMaterial({ color: '#FF69B4' });
+                
+                const bowLeft = new THREE.Mesh(bowPart, bowMaterial);
+                bowLeft.position.set(-0.2, 1.8, 0.5);
+                bowLeft.rotation.z = Math.PI / 4;
+                
+                const bowRight = new THREE.Mesh(bowPart, bowMaterial);
+                bowRight.position.set(0.2, 1.8, 0.5);
+                bowRight.rotation.z = -Math.PI / 4;
+                
+                const bowCenter = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.1, 0.1, 0.1),
+                    bowMaterial
+                );
+                bowCenter.position.set(0, 1.8, 0.5);
+                
+                npcGroup.add(bowLeft);
+                npcGroup.add(bowRight);
+                npcGroup.add(bowCenter);
+            } else { // Glasses
+                const glassGeometry = new THREE.TorusGeometry(0.1, 0.02, 8, 16);
+                const glassMaterial = new THREE.MeshStandardMaterial({ 
+                    color: '#000000',
+                    metalness: 0.5
+                });
+                
+                const leftGlass = new THREE.Mesh(glassGeometry, glassMaterial);
+                leftGlass.position.set(-0.1, 1.65, 0.4);
+                leftGlass.rotation.y = Math.PI / 2;
+                
+                const rightGlass = new THREE.Mesh(glassGeometry, glassMaterial);
+                rightGlass.position.set(0.1, 1.65, 0.4);
+                rightGlass.rotation.y = Math.PI / 2;
+                
+                const bridge = new THREE.Mesh(
+                    new THREE.BoxGeometry(0.15, 0.02, 0.02),
+                    glassMaterial
+                );
+                bridge.position.set(0, 1.65, 0.4);
+                
+                npcGroup.add(leftGlass);
+                npcGroup.add(rightGlass);
+                npcGroup.add(bridge);
+            }
+
+            npcGroup.position.set(x, 0, z);
+            scene.add(npcGroup);
+            
+            // Create patrol points for wandering
+            const patrolPoints = [
+                new THREE.Vector3(x, 0, z),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5)),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5)),
+                new THREE.Vector3(x + (Math.random() * 10 - 5), 0, z + (Math.random() * 10 - 5))
+            ];
+            
+            return {
+                type: 'friendlyNPC',
+                mesh: npcGroup,
+                name: name,
+                met: false,
+                patrolPoints: patrolPoints,
+                currentPatrolIndex: 0,
+                lastInteractionTime: 0,
+                interactionCooldown: 3000,
+                lastMoveTime: 0,
+                moveCooldown: 2000,
+                speed: 0.01
+            };
+        }
+
+        // Projectiles
+        const projectiles = [];
+        const projectileGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+        const projectileMaterial = new THREE.MeshStandardMaterial({
+            color: '#FF69B4',
+            emissive: '#FFD700',
+            emissiveIntensity: 0.7,
+            transparent: true,
+            opacity: 0.9
+        });
+
+        // Stone Projectiles (for bullies)
+        const stoneProjectiles = [];
+        const stoneGeometry = new THREE.SphereGeometry(0.3, 8, 8);
+        const stoneMaterial = new THREE.MeshStandardMaterial({
+            color: '#808080',
+            roughness: 0.8,
+            metalness: 0.2
+        });
+
+        function fireStoneProjectile(enemy) {
+            const now = Date.now();
+            if (now - enemy.lastAttackTime < enemy.attackCooldown) return;
+            enemy.lastAttackTime = now;
+
+            const stone = new THREE.Mesh(stoneGeometry, stoneMaterial);
+            stone.position.copy(enemy.mesh.position);
+            stone.position.y += 1.5;
+            
+            const direction = new THREE.Vector3().subVectors(
+                playerGroup.position, enemy.mesh.position
+            ).normalize();
+            
+            scene.add(stone);
+            stoneProjectiles.push({
+                mesh: stone,
+                direction: direction,
+                speed: 0.15,
+                distance: 0,
+                maxDistance: 30,
+                damage: 10
+            });
+        }
+
+        // Game State
         const gameState = {
             score: 0,
             health: 100,
             maxHealth: 100,
             gameOver: false,
             level: 1,
-            objectives: {},
+            objectives: [
+                "Collect 5 magical gems",
+                "Defeat 1 Turtle",
+                "Defeat 1 Goober",
+                "Defeat 1 Bully",
+                "Meet all friendly NPCs",
+                "Find the Sparkle Academy",
+                "Collect all sparkle globes"
+            ],
+            inventory: [],
+            collectedGems: 0,
+            defeatedEnemyTypes: {
+                turtle: false,
+                goober: false,
+                bully: false
+            },
+            metNPCs: new Set(),
+            collectedGlobes: 0,
             lastDamageTime: 0,
             invincibilityDuration: 1000,
             inInterior: false,
-            canFly: false,
-            flyEndTime: 0,
-            questsComplete: false,
+            currentInterior: null,
+            memoryGame: {
+                cards: ['🎒', '✏️', ' 💰', '🖍️', ' 🐢', '✨', '📓', ' 🏰'],
+                flippedCards: [],
+                matchedPairs: 0,
+                totalPairs: 4
+            },
+            shapeGame: {
+                targetShape: '',
+                score: 0,
+                gameActive: false
+            },
+            allQuestsCompleted: false
         };
 
-        const player = {
-            mesh: new THREE.Group(),
-            collider: new THREE.Box3(),
+        // Player Physics
+        const playerPhysics = {
             velocity: new THREE.Vector3(),
-            moveSpeed: 0.15,
-            jumpForce: 0.2,
+            direction: new THREE.Vector3(),
+            moveSpeed: 0.2,
+            jumpForce: 0.25,
             gravity: -0.01,
             isGrounded: false,
             canJump: true,
             isJumping: false
         };
 
+        // Camera Controls
+        let cameraDistance = 10;
+        let cameraAngle = Math.PI / 4;
+        let cameraHeight = 5;
+
+        // Controls
         const controls = {
-            left: { active: false, startX: 0, startY: 0, currentX: 0, currentY: 0 },
-            right: { active: false, startX: 0, startY: 0, currentX: 0, currentY: 0 },
+            move: {
+                active: false,
+                startX: 0,
+                startY: 0,
+                currentX: 0,
+                currentY: 0
+            },
+            camera: {
+                active: false,
+                startX: 0,
+                startY: 0,
+                currentX: 0,
+                currentY: 0
+            },
+            jumpBtn: document.getElementById('jumpBtn'),
+            attackBtn: document.getElementById('attackBtn'),
             lastAttackTime: 0,
             attackCooldown: 500,
-            cameraAngleX: 0,
-            cameraAngleY: Math.PI / 6,
-            cameraDistance: 12
+            lockOnRange: 20
         };
 
-        // --- WORLD CREATION ---
-        function createWorld() {
-            // Ground
-            const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(200, 200),
-                new THREE.MeshStandardMaterial({ map: groundTexture })
-            );
-            ground.rotation.x = -Math.PI / 2;
-            ground.receiveShadow = true;
-            scene.add(ground);
-            
-            // Player
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.2, 16), new THREE.MeshStandardMaterial({ color: '#FFDAB9' }));
-            body.position.y = 0.6;
-            body.castShadow = true;
-            player.mesh.add(body);
-
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 24, 24), new THREE.MeshStandardMaterial({ color: '#FFDAB9' }));
-            head.position.y = 1.6;
-            head.castShadow = true;
-            player.mesh.add(head);
-
-            player.mesh.position.y = 0.6;
-            scene.add(player.mesh);
-
-            // NEW: Create a visible sun object
-            const sun = new THREE.Mesh(
-                new THREE.SphereGeometry(5, 32, 32),
-                new THREE.MeshBasicMaterial({ color: 0xFFFF00, fog: false })
-            );
-            sun.position.copy(directionalLight.position);
-            scene.add(sun);
-        }
-
-        // NEW: Function to create clouds
-        function createCloud(x, y, z) {
-            const cloud = new THREE.Group();
-            const cloudMaterial = new THREE.MeshStandardMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.85
-            });
-
-            for (let i = 0; i < 5 + Math.random() * 5; i++) {
-                const puff = new THREE.Mesh(
-                    new THREE.SphereGeometry(2 + Math.random() * 2, 8, 8),
-                    cloudMaterial
-                );
-                puff.position.set(
-                    (Math.random() - 0.5) * 8,
-                    (Math.random() - 0.5) * 2,
-                    (Math.random() - 0.5) * 8
-                );
-                puff.castShadow = true;
-                cloud.add(puff);
-            }
-            cloud.position.set(x, y, z);
-            scene.add(cloud);
-            clouds.push(cloud);
-        }
-
-        function createHouse(x, z, miniGameType) {
-            const houseGroup = new THREE.Group();
-            
-            const base = new THREE.Mesh(new THREE.BoxGeometry(6, 4, 6), new THREE.MeshStandardMaterial({ map: brickTexture }));
-            base.position.y = 2;
-            base.castShadow = true;
-            houseGroup.add(base);
-
-            const roof = new THREE.Mesh(new THREE.ConeGeometry(4.5, 3, 4), new THREE.MeshStandardMaterial({ map: woodTexture }));
-            roof.position.y = 5.5;
-            roof.rotation.y = Math.PI / 4;
-            roof.castShadow = true;
-            houseGroup.add(roof);
-
-            const door = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 2.2), new THREE.MeshStandardMaterial({ color: '#5C3317' }));
-            door.position.set(0, 1.1, 3.01);
-            houseGroup.add(door);
-
-            houseGroup.position.set(x, 0, z);
-            scene.add(houseGroup);
-
-            const houseCollider = new THREE.Box3().setFromObject(base);
-            collidableObjects.push(houseCollider);
-            houses.push({
-                position: houseGroup.position,
-                doorPosition: door.getWorldPosition(new THREE.Vector3()),
-                miniGameType: miniGameType
-            });
-            return houseGroup;
-        }
-
-        function createCastle(x, z) {
-            const castleGroup = new THREE.Group();
-            const base = new THREE.Mesh(new THREE.BoxGeometry(15, 10, 15), new THREE.MeshStandardMaterial({ map: brickTexture }));
-            base.position.y = 5;
-            base.castShadow = true;
-            castleGroup.add(base);
-
-            const mainRoof = new THREE.Mesh(new THREE.ConeGeometry(10, 6, 4), new THREE.MeshStandardMaterial({ color: 0x8B0000 }));
-            mainRoof.position.y = 13;
-            mainRoof.rotation.y = Math.PI / 4;
-            castleGroup.add(mainRoof);
-
-            const door = new THREE.Mesh(new THREE.PlaneGeometry(3, 5), new THREE.MeshStandardMaterial({ color: '#5C3317'}));
-            door.position.set(0, 2.5, 7.51);
-            castleGroup.add(door);
-            
-            const towerGeo = new THREE.CylinderGeometry(2, 2, 12, 8);
-            const towerMat = new THREE.MeshStandardMaterial({ map: brickTexture });
-            const towerPositions = [[-7.5, 7.5], [7.5, 7.5], [-7.5, -7.5], [7.5, -7.5]];
-            towerPositions.forEach(pos => {
-                const tower = new THREE.Mesh(towerGeo, towerMat);
-                tower.position.set(pos[0], 6, pos[1]);
-                castleGroup.add(tower);
-            });
-
-            castleGroup.position.set(x, 0, z);
-            scene.add(castleGroup);
-            
-            const castleCollider = new THREE.Box3().setFromObject(base);
-            collidableObjects.push(castleCollider);
-            return {
-                mesh: castleGroup,
-                doorPosition: door.getWorldPosition(new THREE.Vector3()),
-                collider: castleCollider
-            };
-        }
-        let castle; 
-
-        function createTree(x, z) {
-            const tree = new THREE.Group();
-            const trunk = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.3, 0.4, 2.5, 8),
-                new THREE.MeshStandardMaterial({ color: '#8B4513' })
-            );
-            trunk.position.y = 1.25;
-            trunk.castShadow = true;
-            tree.add(trunk);
-            const leaves = new THREE.Mesh(
-                new THREE.ConeGeometry(2, 4, 8),
-                new THREE.MeshStandardMaterial({ color: '#228B22' })
-            );
-            leaves.position.y = 4;
-            leaves.castShadow = true;
-            tree.add(leaves);
-            tree.position.set(x, 0, z);
-            scene.add(tree);
-            const treeCollider = new THREE.Box3().setFromObject(trunk);
-            collidableObjects.push(treeCollider);
-        }
-
-        function createRock(x, z) {
-            const rock = new THREE.Mesh(
-                new THREE.IcosahedronGeometry(1, 0),
-                new THREE.MeshStandardMaterial({ color: '#808080' })
-            );
-            rock.scale.set(
-                1 + Math.random() * 0.5,
-                1 + Math.random() * 0.8,
-                1 + Math.random() * 0.5
-            );
-            rock.position.set(x, rock.scale.y * 0.5, z);
-            rock.castShadow = true;
-            scene.add(rock);
-            const rockCollider = new THREE.Box3().setFromObject(rock);
-            collidableObjects.push(rockCollider);
-        }
-
-        function createFriendlyNPC(x, z, name, dialogue) {
-            const npcGroup = new THREE.Group();
-            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.3, 16), new THREE.MeshStandardMaterial({ color: '#C0C0C0' }));
-            body.position.y = 0.65;
-            npcGroup.add(body);
-            const head = new THREE.Mesh(new THREE.SphereGeometry(0.4, 24, 24), new THREE.MeshStandardMaterial({ color: '#FFDAB9' }));
-            head.position.y = 1.6;
-            npcGroup.add(head);
-            npcGroup.position.set(x, 0, z);
-            scene.add(npcGroup);
-            friendlyNPCs.push({
-                name: name,
-                mesh: npcGroup,
-                dialogue: dialogue,
-                lastInteraction: 0
-            });
-        }
-        
-        function createEnemy(x, z, type) {
-            const enemyGroup = new THREE.Group();
-            let enemyData;
-
-            if (type === 'canrat') {
-                const body = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 1, 8), new THREE.MeshStandardMaterial({ color: '#A52A2A' }));
-                body.position.y = 0.5;
-                enemyGroup.add(body);
-                enemyData = { type: 'canrat', health: 3, maxHealth: 3, speed: 0.03, damage: 10, score: 100 };
-            }
-
-            enemyGroup.position.set(x, 0, z);
-            scene.add(enemyGroup);
-            
-            const healthBar = createEnemyHealthBar();
-            enemyGroup.add(healthBar.group);
-
-            enemies.push({
-                ...enemyData,
-                mesh: enemyGroup,
-                collider: new THREE.Box3(),
-                initialPosition: new THREE.Vector3(x, 0, z),
-                healthBar: healthBar
-            });
-        }
-
-        function createEnemyHealthBar() {
-            const healthBarGroup = new THREE.Group();
-            const outer = new THREE.Mesh(new THREE.PlaneGeometry(1.2, 0.2), new THREE.MeshBasicMaterial({ color: 0x000000 }));
-            const fill = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.15), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
-            fill.position.z = 0.01;
-            healthBarGroup.add(outer, fill);
-            healthBarGroup.position.y = 2.0;
-            healthBarGroup.visible = false;
-            return { group: healthBarGroup, fill: fill };
-        }
-
-        function createGem(x, y, z) {
-            const gem = new THREE.Mesh(
-                new THREE.OctahedronGeometry(0.4, 0),
-                new THREE.MeshStandardMaterial({ color: '#FFD700', emissive: '#FFAA00', metalness: 0.8, roughness: 0.2 })
-            );
-            gem.position.set(x, y, z);
-            scene.add(gem);
-            gems.push({ mesh: gem, collected: false });
-        }
-
-        // --- GAME LOGIC & STATE MANAGEMENT ---
-        function initGameContent(level) {
-            // Clear previous level
-            collidableObjects = [];
-            houses = [];
-            gems.forEach(g => scene.remove(g.mesh));
-            gems = [];
-            enemies.forEach(e => scene.remove(e.mesh));
-            enemies = [];
-            friendlyNPCs.forEach(n => scene.remove(n.mesh));
-            friendlyNPCs = [];
-            clouds.forEach(c => scene.remove(c));
-            clouds = [];
-            if(castle) scene.remove(castle.mesh);
-
-            // Setup new level
-            gameState.level = level;
-            
-            castle = createCastle(0, -50);
-            
-            // NEW: Populate the sky
-            for (let i = 0; i < 12; i++) {
-                createCloud(
-                    (Math.random() - 0.5) * 180,
-                    30 + Math.random() * 15,
-                    (Math.random() - 0.5) * 180
-                );
-            }
-
-            if (level === 1) {
-                gameState.objectives = {
-                    "collect_gems": { text: "Collect 5 Gems", current: 0, total: 5, complete: false },
-                    "defeat_canrats": { text: "Defeat 3 Canrats", current: 0, total: 3, complete: false },
-                    "talk_npcs": { text: "Talk to the Villagers", current: 0, total: 2, complete: false }
-                };
-
-                createHouse(-20, 20, 'memory');
-                createHouse(20, 20, 'shapes');
-                createHouse(0, 40, 'memory');
-                
-                createEnemy(10, -10, 'canrat');
-                createEnemy(-15, -20, 'canrat');
-                createEnemy(20, -30, 'canrat');
-                
-                createFriendlyNPC(-10, 10, "Hazel", ["Hello, Willow! The canrats seem feistier today.", "Try jumping on the canrats, it's super effective!", "I saw something shiny over by that house."]);
-                createFriendlyNPC(15, 10, "Finn", ["Hey Willow! Watch out for those canrats.", "If you complete all your quests, the way forward should open at the castle.", "Some say winning games in the houses can grant magical powers!"]);
-                
-                for(let i = 0; i < 10; i++) {
-                    createGem((Math.random() - 0.5) * 80, 1, (Math.random() - 0.5) * 80);
-                }
-                
-                for(let i=0; i < 15; i++) {
-                    createTree((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
-                    createRock((Math.random() - 0.5) * 100, (Math.random() - 0.5) * 100);
-                }
-
-            } else if (level === 2) {
-                gameState.objectives = {
-                    "collect_gems": { text: "Collect 10 Gems", current: 0, total: 10, complete: false },
-                    "defeat_canrats": { text: "Defeat 5 Canrats", current: 0, total: 5, complete: false }
-                };
-                player.mesh.position.set(0, 0.6, 0);
-                
-                createHouse(-25, 30, 'memory');
-                createHouse(25, 30, 'shapes');
-
-                for(let i = 0; i < 5; i++) {
-                    createEnemy((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80, 'canrat');
-                }
-                for(let i = 0; i < 20; i++) {
-                    createGem((Math.random() - 0.5) * 100, 1, (Math.random() - 0.5) * 100);
-                }
-                 
-                for(let i=0; i < 25; i++) {
-                    createTree((Math.random() - 0.5) * 120, (Math.random() - 0.5) * 120);
-                    createRock((Math.random() - 0.5) * 120, (Math.random() - 0.5) * 120);
-                }
-            }
-            updateObjectivesList();
-        }
-
-        function updateObjective(key, amount) {
-            if (gameState.gameOver || !gameState.objectives[key] || gameState.objectives[key].complete) return;
-            
-            gameState.objectives[key].current += amount;
-            if (gameState.objectives[key].current >= gameState.objectives[key].total) {
-                gameState.objectives[key].current = gameState.objectives[key].total;
-                gameState.objectives[key].complete = true;
-                createEmotionBubble(player.mesh.position, "✅", 1000);
-            }
-            updateObjectivesList();
-            checkAllQuestsComplete();
-        }
-
-        function checkAllQuestsComplete() {
-            gameState.questsComplete = Object.values(gameState.objectives).every(q => q.complete);
-            if (gameState.questsComplete) {
-                showDialogue({
-                    name: "System",
-                    dialogue: ["You've completed all quests! The castle door might be open now..."]
-                });
-            }
-        }
-        
-        function takeDamage(amount) {
-            if (gameState.gameOver || Date.now() - gameState.lastDamageTime < gameState.invincibilityDuration) return;
-
-            gameState.health = Math.max(0, gameState.health - amount);
-            updateHealthBar();
-            gameState.lastDamageTime = Date.now();
-            createEmotionBubble(player.mesh.position, "💔", 800);
-
-            if (gameState.health <= 0) {
-                document.getElementById('gameOver').style.display = 'flex';
-                gameState.gameOver = true;
-            }
-        }
-        
-        function grantReward(type, value) {
-            if (type === 'money') {
-                gameState.score += value;
-                updateScore();
-            } else if (type === 'flying') {
-                gameState.canFly = true;
-                gameState.flyEndTime = Date.now() + 15000; // 15 seconds
-                player.velocity.y = 0; // Stop falling
-                document.getElementById('jumpBtn').textContent = 'FLY UP';
-            }
-        }
-
-        // --- MINI-GAMES ---
-        function startMiniGame(house) {
-            gameState.inInterior = true;
-            currentMiniGameHouse = house; 
-            document.getElementById('interiorView').style.display = 'flex';
-            document.getElementById('miniGameMessage').textContent = '';
-
-            if (house.miniGameType === 'memory') {
-                document.getElementById('miniGameTitle').textContent = 'Memory Match';
-                document.getElementById('miniGameDescription').textContent = 'Find all the matching pairs!';
-                document.getElementById('memoryGame').style.display = 'grid';
-                document.getElementById('shapeGame').style.display = 'none';
-                setupMemoryGame();
-            } else if (house.miniGameType === 'shapes') {
-                document.getElementById('miniGameTitle').textContent = 'Shape Matching';
-                document.getElementById('miniGameDescription').textContent = 'Click the shape that matches the target!';
-                document.getElementById('memoryGame').style.display = 'none';
-                document.getElementById('shapeGame').style.display = 'flex';
-                setupShapeGame();
-            }
-        }
-
-        function exitMiniGame() {
-            gameState.inInterior = false;
-            document.getElementById('interiorView').style.display = 'none';
-            
-            if (currentMiniGameHouse) {
-                const exitDirection = new THREE.Vector3().subVectors(player.mesh.position, currentMiniGameHouse.doorPosition);
-                exitDirection.y = 0; 
-                exitDirection.normalize();
-                player.mesh.position.addScaledVector(exitDirection, 3.0); 
-                currentMiniGameHouse = null;
-            }
-        }
-
-        function setupMemoryGame() {
-            const memoryGameUI = document.getElementById('memoryGame');
-            memoryGameUI.innerHTML = '';
-            let flippedCards = [];
-            let matchedPairs = 0;
-            const symbols = ['🍎', '🍌', '🍒', '🍓'];
-            const cards = [...symbols, ...symbols].sort(() => 0.5 - Math.random());
-
-            cards.forEach(symbol => {
-                const card = document.createElement('div');
-                card.className = 'memory-card';
-                card.dataset.symbol = symbol;
-                card.innerHTML = `
-                    <div class="card-face card-front">?</div>
-                    <div class="card-face card-back">${symbol}</div>
-                `;
-                card.addEventListener('click', () => {
-                    if (flippedCards.length < 2 && !card.classList.contains('flipped')) {
-                        card.classList.add('flipped');
-                        flippedCards.push(card);
-
-                        if (flippedCards.length === 2) {
-                            if (flippedCards[0].dataset.symbol === flippedCards[1].dataset.symbol) {
-                                flippedCards = [];
-                                matchedPairs++;
-                                if (matchedPairs === symbols.length) {
-                                    document.getElementById('miniGameMessage').textContent = 'You win! +250 Score!';
-                                    grantReward('money', 250);
-                                }
-                            } else {
-                                setTimeout(() => {
-                                    flippedCards.forEach(c => c.classList.remove('flipped'));
-                                    flippedCards = [];
-                                }, 1000);
-                            }
-                        }
-                    }
-                });
-                memoryGameUI.appendChild(card);
-            });
-        }
-        
-        function setupShapeGame() {
-            const shapes = ['🔺', '🔵', '⭐'];
-            const targetUI = document.getElementById('shapeTarget');
-            const options = document.querySelectorAll('.shape-option');
-            let targetShape;
-
-            function nextRound() {
-                targetShape = shapes[Math.floor(Math.random() * shapes.length)];
-                targetUI.textContent = targetShape;
-            }
-            
-            options.forEach(option => {
-                option.onclick = () => {
-                    if (option.dataset.shape === targetShape) {
-                        document.getElementById('miniGameMessage').textContent = 'Awesome! A flying power-up!';
-                        grantReward('flying', 1);
-                        setTimeout(exitMiniGame, 1500);
-                    } else {
-                        document.getElementById('miniGameMessage').textContent = 'Not quite, try again!';
-                    }
-                };
-            });
-            nextRound();
-        }
-
-        // --- PLAYER & CAMERA CONTROLS ---
+        // Setup controls
         function setupControls() {
             const leftTouch = document.getElementById('left-touch');
             const rightTouch = document.getElementById('right-touch');
-
-            const startHandler = (e, side) => {
+            
+            // Left side - Movement
+            leftTouch.addEventListener('touchstart', (e) => {
+                controls.move.active = true;
+                controls.move.startX = e.touches[0].clientX;
+                controls.move.startY = e.touches[0].clientY;
                 e.preventDefault();
-                const touch = e.touches ? e.touches[0] : e;
-                controls[side].active = true;
-                controls[side].startX = controls[side].currentX = touch.clientX;
-                controls[side].startY = controls[side].currentY = touch.clientY;
-            };
-
-            const moveHandler = (e) => {
-                if (e.touches) { // Touch
-                    Array.from(e.touches).forEach(touch => {
-                        if (touch.clientX < window.innerWidth / 2 && controls.left.active) {
-                            controls.left.currentX = touch.clientX;
-                            controls.left.currentY = touch.clientY;
-                        } else if (touch.clientX >= window.innerWidth / 2 && controls.right.active) {
-                            controls.right.currentX = touch.clientX;
-                            controls.right.currentY = touch.clientY;
+            });
+            
+            leftTouch.addEventListener('mousedown', (e) => {
+                controls.move.active = true;
+                controls.move.startX = e.clientX;
+                controls.move.startY = e.clientY;
+                e.preventDefault();
+            });
+            
+            // Right side - Camera
+            rightTouch.addEventListener('touchstart', (e) => {
+                controls.camera.active = true;
+                controls.camera.startX = e.touches[0].clientX;
+                controls.camera.startY = e.touches[0].clientY;
+                e.preventDefault();
+            });
+            
+            rightTouch.addEventListener('mousedown', (e) => {
+                controls.camera.active = true;
+                controls.camera.startX = e.clientX;
+                controls.camera.startY = e.clientY;
+                e.preventDefault();
+            });
+            
+            // Movement
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches && e.touches.length > 0) {
+                    const touchMove = Array.from(e.touches).find(t => t.target === leftTouch || t.target === rightTouch);
+                    if (touchMove) {
+                        if (touchMove.target === leftTouch) {
+                            controls.move.currentX = touchMove.clientX;
+                            controls.move.currentY = touchMove.clientY;
+                        } else if (touchMove.target === rightTouch) {
+                            controls.camera.currentX = touchMove.clientX;
+                            controls.camera.currentY = touchMove.clientY;
                         }
-                    });
+                    }
                 } else { // Mouse
-                    if(controls.left.active) {
-                        controls.left.currentX = e.clientX;
-                        controls.left.currentY = e.clientY;
+                    if (controls.move.active) {
+                        controls.move.currentX = e.clientX;
+                        controls.move.currentY = e.clientY;
                     }
-                     if(controls.right.active) {
-                        controls.right.currentX = e.clientX;
-                        controls.right.currentY = e.clientY;
+                    if (controls.camera.active) {
+                        controls.camera.currentX = e.clientX;
+                        controls.camera.currentY = e.clientY;
                     }
                 }
-            };
-            
-            const endHandler = (e) => {
-                 if (e.changedTouches) {
-                    Array.from(e.changedTouches).forEach(touch => {
-                         if (touch.clientX < window.innerWidth / 2) controls.left.active = false;
-                         else controls.right.active = false;
-                    });
-                 } else {
-                    controls.left.active = false;
-                    controls.right.active = false;
-                 }
-            };
+                e.preventDefault();
+            }, { passive: false });
 
-            leftTouch.addEventListener('touchstart', (e) => startHandler(e, 'left'));
-            rightTouch.addEventListener('touchstart', (e) => startHandler(e, 'right'));
-            leftTouch.addEventListener('mousedown', (e) => startHandler(e, 'left'));
-            rightTouch.addEventListener('mousedown', (e) => startHandler(e, 'right'));
-            
-            window.addEventListener('touchmove', moveHandler);
-            window.addEventListener('mousemove', moveHandler);
-
-            window.addEventListener('touchend', endHandler);
-            window.addEventListener('mouseup', endHandler);
-
-            document.getElementById('jumpBtn').addEventListener('pointerdown', () => {
-                if (gameState.canFly) {
-                    player.velocity.y = 0.1; // Fly up
-                } else if (player.isGrounded && player.canJump) {
-                    player.velocity.y = player.jumpForce;
-                    player.isGrounded = false;
-                    player.canJump = false;
-                    player.isJumping = true;
-                    setTimeout(() => player.canJump = true, 500);
+            // End events
+            document.addEventListener('touchend', (e) => {
+                if (e.changedTouches) {
+                    for (let i = 0; i < e.changedTouches.length; i++) {
+                        const touch = e.changedTouches[i];
+                        if (touch.target === leftTouch) controls.move.active = false;
+                        if (touch.target === rightTouch) controls.camera.active = false;
+                    }
                 }
             });
-
-            document.getElementById('attackBtn').addEventListener('pointerdown', () => {
-                const now = Date.now();
-                if (now - controls.lastAttackTime < controls.attackCooldown) return;
-                controls.lastAttackTime = now;
-                
-                const projectile = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 8), new THREE.MeshStandardMaterial({color: '#FF69B4', emissive: '#FFD700'}));
-                player.mesh.getWorldPosition(tempVector);
-                tempVector.y += 1.5;
-                projectile.position.copy(tempVector);
-                
-                const direction = new THREE.Vector3(0, 0, -1).applyQuaternion(player.mesh.quaternion);
-                
-                scene.add(projectile);
-                projectiles.push({ mesh: projectile, direction: direction, speed: 0.4, distance: 0 });
+            
+            document.addEventListener('mouseup', () => {
+                controls.move.active = false;
+                controls.camera.active = false;
             });
             
-            document.getElementById('exitInteriorBtn').addEventListener('click', exitMiniGame);
+            // Jump button
+            controls.jumpBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (playerPhysics.isGrounded && playerPhysics.canJump) {
+                    playerPhysics.velocity.y = playerPhysics.jumpForce;
+                    playerPhysics.isGrounded = false;
+                    playerPhysics.canJump = false;
+                    playerPhysics.isJumping = true;
+                    setTimeout(() => {
+                        playerPhysics.canJump = true;
+                    }, 500);
+                }
+            });
+            
+            controls.jumpBtn.addEventListener('mousedown', () => {
+                if (playerPhysics.isGrounded && playerPhysics.canJump) {
+                    playerPhysics.velocity.y = playerPhysics.jumpForce;
+                    playerPhysics.isGrounded = false;
+                    playerPhysics.canJump = false;
+                    playerPhysics.isJumping = true;
+                    setTimeout(() => {
+                        playerPhysics.canJump = true;
+                    }, 500);
+                }
+            });
+            
+            // Attack button
+            controls.attackBtn.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                fireProjectile();
+            });
+            
+            controls.attackBtn.addEventListener('mousedown', () => {
+                fireProjectile();
+            });
+
+            // Exit interior button
+            document.getElementById('exitInterior').addEventListener('click', exitInterior);
+            
+            // Next level button
+            document.getElementById('nextLevelBtn').addEventListener('click', () => {
+                document.getElementById('victoryScreen').style.display = 'none';
+                // Here you would typically load the next level
+                alert("Next level would load here! This is the end of the demo.");
+            });
         }
 
-        function updatePlayerAndCamera() {
-            // Player Movement
-            if (controls.left.active && !gameState.inInterior) {
-                const dx = controls.left.currentX - controls.left.startX;
-                const dy = controls.left.currentY - controls.left.startY;
-                const dist = Math.sqrt(dx * dx + dy * dy);
+        function fireProjectile() {
+            const now = Date.now();
+            if (now - controls.lastAttackTime < controls.attackCooldown) return;
+            controls.lastAttackTime = now;
 
-                if (dist > 10) {
-                    camera.getWorldDirection(playerMoveDirection);
-                    playerMoveDirection.y = 0;
-                    playerMoveDirection.normalize();
-                    const cameraRight = tempVector.crossVectors(camera.up, playerMoveDirection).negate();
-                    
-                    const moveDir = playerMoveDirection.multiplyScalar(-dy/dist).add(cameraRight.multiplyScalar(dx/dist)).normalize();
+            const projectile = new THREE.Mesh(projectileGeometry, projectileMaterial);
+            projectile.position.copy(playerGroup.position);
+            projectile.position.y += 1.5;
+            
+            let direction = new THREE.Vector3();
+            let targetEnemy = null;
+            let closestDistance = Infinity;
 
-                    player.mesh.position.addScaledVector(moveDir, player.moveSpeed);
-                    player.mesh.rotation.y = Math.atan2(moveDir.x, moveDir.z);
+            // Find closest enemy for auto-lock
+            for (const enemy of enemies) {
+                if (enemy.health <= 0) continue;
+                const distance = playerGroup.position.distanceTo(enemy.mesh.position);
+                if (distance < closestDistance && distance < controls.lockOnRange) {
+                    closestDistance = distance;
+                    targetEnemy = enemy;
                 }
             }
 
-            // Camera Control
-            if (controls.right.active) {
-                const dx = controls.right.currentX - controls.right.startX;
-                const dy = controls.right.currentY - controls.right.startY;
-                controls.cameraAngleX -= dx * 0.005;
-                controls.cameraAngleY = Math.max(-Math.PI/4, Math.min(Math.PI/2.1, controls.cameraAngleY - dy * 0.005));
-                controls.right.startX = controls.right.currentX;
-                controls.right.startY = controls.right.currentY;
-            }
-
-            // Apply gravity & flying logic
-            if (gameState.canFly) {
-                if (Date.now() > gameState.flyEndTime) {
-                    gameState.canFly = false;
-                    document.getElementById('jumpBtn').textContent = 'JUMP';
-                }
-                if (player.velocity.y > 0) player.velocity.y -= 0.005; // Slow ascent
+            if (targetEnemy) {
+                direction.subVectors(targetEnemy.mesh.position, projectile.position).normalize();
             } else {
-                 player.velocity.y += player.gravity;
+                const forwardVector = new THREE.Vector3(0, 0, -1)
+                    .applyQuaternion(playerGroup.quaternion);
+                direction.copy(forwardVector);
             }
-            player.mesh.position.y += player.velocity.y;
+            
+            scene.add(projectile);
+            projectiles.push({
+                mesh: projectile,
+                direction: direction,
+                speed: 0.3,
+                distance: 0,
+                maxDistance: 30
+            });
 
-            // Camera Position
-            cameraLookAt.copy(player.mesh.position).y += 1.5;
-            camera.position.x = cameraLookAt.x + controls.cameraDistance * Math.sin(controls.cameraAngleX) * Math.cos(controls.cameraAngleY);
-            camera.position.y = cameraLookAt.y + controls.cameraDistance * Math.sin(controls.cameraAngleY);
-            camera.position.z = cameraLookAt.z + controls.cameraDistance * Math.cos(controls.cameraAngleX) * Math.cos(controls.cameraAngleY);
-            camera.lookAt(cameraLookAt);
+            createEmotionBubble(playerGroup.position, "💥", 1000);
+            
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle-effect';
+            const playerScreenPos = new THREE.Vector3();
+            playerGroup.updateWorldMatrix(true, false);
+            playerGroup.getWorldPosition(playerScreenPos);
+            playerScreenPos.project(camera);
+
+            const x = (playerScreenPos.x * .5 + .5) * canvas.clientWidth;
+            const y = (-playerScreenPos.y * .5 + .5) * canvas.clientHeight;
+
+            sparkle.style.left = `${x - 10}px`;
+            sparkle.style.top = `${y - 10}px`;
+            document.getElementById('ui').appendChild(sparkle);
+            
+            setTimeout(() => {
+                sparkle.remove();
+            }, 500);
         }
 
-        // --- COLLISION & INTERACTION ---
-        function checkCollisionsAndInteractions() {
-            player.collider.setFromObject(player.mesh, true).expandByScalar(-0.1);
+        // Memory Match Game
+        function setupMemoryGame() {
+            const memoryGame = document.getElementById('memoryGame');
+            memoryGame.innerHTML = '';
+            gameState.memoryGame.flippedCards = [];
+            gameState.memoryGame.matchedPairs = 0;
             
-            // Ground
-            player.isGrounded = false;
-            if (player.mesh.position.y <= 0.6) {
-                player.mesh.position.y = 0.6;
-                player.velocity.y = 0;
-                player.isGrounded = true;
-                player.isJumping = false;
+            // Create pairs of cards
+            const cards = [...gameState.memoryGame.cards.slice(0, gameState.memoryGame.totalPairs), 
+                          ...gameState.memoryGame.cards.slice(0, gameState.memoryGame.totalPairs)];
+            
+            // Shuffle cards
+            for (let i = cards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [cards[i], cards[j]] = [cards[j], cards[i]];
             }
+            
+            // Create card elements
+            cards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'memory-card';
+                cardElement.dataset.index = index;
+                cardElement.dataset.value = card;
+                cardElement.textContent = '?';
+                
+                cardElement.addEventListener('click', () => flipCard(cardElement));
+                memoryGame.appendChild(cardElement);
+            });
+            
+            document.getElementById('miniGameMessage').textContent = 'Find all matching pairs!';
+        }
 
-            // World Objects (Houses, Castle, Trees, Rocks)
-            for (const objectBox of collidableObjects) {
-                if (player.collider.intersectsBox(objectBox)) {
-                    const centerPlayer = player.collider.getCenter(new THREE.Vector3());
-                    const centerObject = objectBox.getCenter(new THREE.Vector3());
-                    const sizePlayer = player.collider.getSize(new THREE.Vector3());
-                    const sizeObject = objectBox.getSize(new THREE.Vector3());
+        function flipCard(cardElement) {
+            // Don't flip if already flipped or matched
+            if (cardElement.classList.contains('flipped') || 
+                gameState.memoryGame.flippedCards.length >= 2) {
+                return;
+            }
+            
+            cardElement.classList.add('flipped');
+            cardElement.textContent = cardElement.dataset.value;
+            gameState.memoryGame.flippedCards.push(cardElement);
+            
+            if (gameState.memoryGame.flippedCards.length === 2) {
+                checkForMatch();
+            }
+        }
+
+        function checkForMatch() {
+            const [card1, card2] = gameState.memoryGame.flippedCards;
+            
+            if (card1.dataset.value === card2.dataset.value) {
+                // Match found
+                gameState.memoryGame.matchedPairs++;
+                gameState.memoryGame.flippedCards = [];
+                
+                if (gameState.memoryGame.matchedPairs === gameState.memoryGame.totalPairs) {
+                    // Game won
+                    document.getElementById('miniGameMessage').textContent = 'You won! Here are your rewards!';
+                    gameState.score += 200;
+                    updateScore();
                     
-                    const dx = centerPlayer.x - centerObject.x;
-                    const overlapX = (sizePlayer.x + sizeObject.x) / 2 - Math.abs(dx);
-                    const dz = centerPlayer.z - centerObject.z;
-                    const overlapZ = (sizePlayer.z + sizeObject.z) / 2 - Math.abs(dz);
-
-                    if (overlapX > 0.01 && overlapZ > 0.01) {
-                        if (overlapX < overlapZ) {
-                            player.mesh.position.x += (overlapX + 0.01) * Math.sign(dx);
-                        } else {
-                            player.mesh.position.z += (overlapZ + 0.01) * Math.sign(dz);
-                        }
+                    // Add gems near the player
+                    for (let i = 0; i < 3; i++) {
+                        const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+                        gem.position.copy(playerGroup.position);
+                        gem.position.x += (Math.random() - 0.5) * 2;
+                        gem.position.z += (Math.random() - 0.5) * 2;
+                        scene.add(gem);
+                        gems.push({
+                            mesh: gem,
+                            collected: false,
+                            rotationSpeed: Math.random() * 0.02 + 0.01
+                        });
                     }
+                    
+                    setTimeout(setupMemoryGame, 3000);
                 }
+            } else {
+                // No match
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '?';
+                    card2.textContent = '?';
+                    gameState.memoryGame.flippedCards = [];
+                }, 1000);
             }
+        }
 
-            // Interactions
-            if (!gameState.inInterior) {
-                // Houses
-                houses.forEach(house => {
-                    if (player.mesh.position.distanceTo(house.doorPosition) < 2) {
-                        showInteractionPrompt(`Enter House`);
-                        if (controls.left.active && (controls.left.currentY - controls.left.startY) < -10) { // Moving forward
-                            startMiniGame(house);
-                            controls.left.active = false;
-                        }
+        // Shape Matching Game
+        function setupShapeGame() {
+            document.getElementById('memoryGame').style.display = 'none';
+            document.getElementById('shapeGame').style.display = 'flex';
+            
+            const shapes = ['🔺', '🔵', '⭐', '❤️', '🔶', '🔷'];
+            gameState.shapeGame.targetShape = shapes[Math.floor(Math.random() * shapes.length)];
+            document.getElementById('shapeTarget').textContent = gameState.shapeGame.targetShape;
+            document.getElementById('shapeMessage').textContent = 'Match the shape above!';
+            gameState.shapeGame.gameActive = true;
+            
+            // Setup shape click handlers
+            document.querySelectorAll('.shape-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    if (!gameState.shapeGame.gameActive) return;
+                    
+                    if (option.dataset.shape === gameState.shapeGame.targetShape) {
+                        // Correct match
+                        gameState.shapeGame.score++;
+                        document.getElementById('shapeMessage').textContent = 'Correct! +50 points';
+                        gameState.score += 50;
+                        updateScore();
+                        
+                        // Change target shape
+                        setTimeout(() => {
+                            const remainingShapes = shapes.filter(s => s !== gameState.shapeGame.targetShape);
+                            gameState.shapeGame.targetShape = remainingShapes[Math.floor(Math.random() * remainingShapes.length)];
+                            document.getElementById('shapeTarget').textContent = gameState.shapeGame.targetShape;
+                            document.getElementById('shapeMessage').textContent = 'Match the shape above!';
+                        }, 1000);
+                    } else {
+                        // Wrong match
+                        document.getElementById('shapeMessage').textContent = 'Try again!';
                     }
                 });
-                // Castle
-                if (player.mesh.position.distanceTo(castle.doorPosition) < 3.5) {
-                    if (gameState.questsComplete) {
-                        showInteractionPrompt('Enter Castle and Proceed to Next Level!');
-                         if (controls.left.active && (controls.left.currentY - controls.left.startY) < -10) {
-                             document.getElementById('levelComplete').style.display = 'flex';
-                         }
-                    } else {
-                        showInteractionPrompt('Complete all quests to enter!');
+            });
+        }
+
+        // Improved collision detection
+        function checkCollisions() {
+            playerCollider.setFromObject(playerGroup);
+            
+            // Ground collision
+            playerPhysics.isGrounded = false;
+            if (playerGroup.position.y <= 1) {
+                playerGroup.position.y = 1;
+                playerPhysics.velocity.y = 0;
+                playerPhysics.isGrounded = true;
+                playerPhysics.isJumping = false;
+            }
+            
+            // Platform collisions
+            for (const platform of platforms) {
+                const platformBox = new THREE.Box3().setFromObject(platform.platform);
+                const playerBoundingBox = playerCollider.clone();
+                
+                // Check if player is above the platform
+                if (playerGroup.position.y > platform.height + 0.5) {
+                    playerBoundingBox.min.y = playerGroup.position.y - 0.1;
+                    playerBoundingBox.max.y = playerGroup.position.y;
+                    
+                    if (playerBoundingBox.intersectsBox(platformBox)) {
+                        playerGroup.position.y = platform.height + 0.5;
+                        playerPhysics.velocity.y = 0;
+                        playerPhysics.isGrounded = true;
+                        playerPhysics.isJumping = false;
+                        
+                        // Check for platform reward
+                        if (platform.hasReward && !platform.rewardCollected) {
+                            platform.rewardCollected = true;
+                            createEmotionBubble(playerGroup.position, "🎁", 1500);
+                            
+                            // Add reward
+                            gameState.score += 50;
+                            updateScore();
+                            
+                            // Show visual reward effect
+                            const reward = document.getElementById('platformReward');
+                            const screenPos = new THREE.Vector3();
+                            platform.platform.updateWorldMatrix(true, false);
+                            platform.platform.getWorldPosition(screenPos);
+                            screenPos.project(camera);
+                            
+                            const x = (screenPos.x * .5 + .5) * canvas.clientWidth;
+                            const y = (-screenPos.y * .5 + .5) * canvas.clientHeight;
+                            
+                            reward.style.left = `${x - 10}px`;
+                            reward.style.top = `${y - 10}px`;
+                            reward.style.display = 'block';
+                            
+                            setTimeout(() => {
+                                reward.style.display = 'none';
+                            }, 1000);
+                        }
                     }
                 }
             }
             
-            // NPCs
-            friendlyNPCs.forEach(npc => {
-                 if (player.mesh.position.distanceTo(npc.mesh.position) < 3 && Date.now() - npc.lastInteraction > 5000) {
-                    showDialogue(npc);
-                    npc.lastInteraction = Date.now();
-                    updateObjective('talk_npcs', 1);
-                 }
-            });
-
+            // Building/environment collisions - Improved algorithm
+            // The fix here is to first apply the player movement, then check for collision
+            // and correct the position. This prevents the player from getting "stuck"
+            // in the collision box by constantly trying to enter it.
+            // Also, we now use `playerGroup.position` directly and subtract the `velocity`
+            // to get the previous position, which is more accurate.
+            const previousPosition = playerGroup.position.clone();
+            
+            // Check for building/environment collisions
+            for (const object of collidableObjects) {
+                const objectBox = new THREE.Box3().setFromObject(object);
+                const playerBox = playerCollider.clone();
+                
+                if (playerBox.intersectsBox(objectBox)) {
+                    const overlapX = Math.min(
+                        playerBox.max.x - objectBox.min.x,
+                        objectBox.max.x - playerBox.min.x
+                    );
+                    
+                    const overlapZ = Math.min(
+                        playerBox.max.z - objectBox.min.z,
+                        objectBox.max.z - playerBox.min.z
+                    );
+                    
+                    // Push player back along the axis with the smallest overlap
+                    if (overlapX < overlapZ) {
+                        playerGroup.position.x = previousPosition.x;
+                        playerPhysics.velocity.x = 0; // Stop movement in that direction
+                    } else {
+                        playerGroup.position.z = previousPosition.z;
+                        playerPhysics.velocity.z = 0; // Stop movement in that direction
+                    }
+                }
+            }
+            
+            // Check for house door interactions
+            // This logic is now inside `checkCollisions` so it runs continuously.
+            // A cooldown has been added to prevent re-entry immediately after exiting.
+            const now = Date.now();
+            if (!gameState.inInterior && (now - lastInteriorInteractionTime > interiorCooldown)) {
+                for (const interior of houseInteriors) {
+                    const doorDistance = playerGroup.position.distanceTo(interior.doorPosition);
+                    if (doorDistance < 2) {
+                        const playerDirection = new THREE.Vector3(0, 0, -1)
+                            .applyQuaternion(playerGroup.quaternion);
+                        const toDoorDirection = new THREE.Vector3()
+                            .subVectors(interior.doorPosition, playerGroup.position)
+                            .normalize();
+                        
+                        const dot = playerDirection.dot(toDoorDirection);
+                        if (dot > 0.7 && controls.move.active) {
+                            enterInterior(interior);
+                        }
+                    }
+                }
+            }
+            
+            // Check for castle door interaction
+            const castleDoorPos = new THREE.Vector3(0, 1, -62.4);
+            const castleDoorDistance = playerGroup.position.distanceTo(castleDoorPos);
+            if (castleDoorDistance < 3 && gameState.allQuestsCompleted) {
+                showVictoryScreen();
+            }
+            
             // Gem collection
-            gems.forEach(gem => {
-                if (!gem.collected && player.mesh.position.distanceTo(gem.mesh.position) < 1.5) {
+            for (const gem of gems) {
+                if (gem.collected) continue;
+                
+                const gemPos = gem.mesh.position;
+                const distance = playerGroup.position.distanceTo(gemPos);
+                
+                if (distance < 1.5) {
                     gem.collected = true;
                     scene.remove(gem.mesh);
                     gameState.score += 50;
+                    gameState.collectedGems++;
                     updateScore();
-                    updateObjective('collect_gems', 1);
+                    
+                    createEmotionBubble(playerGroup.position, "✨", 1000);
+                    
+                    if (gameState.collectedGems === 5) {
+                        completeObjective("Collect 5 magical gems");
+                    }
                 }
-            });
-        }
-        
-        // --- UI UPDATES ---
-        function updateUI() {
-            document.getElementById('score').textContent = `💰 ${gameState.score}`;
-            const healthFill = document.getElementById('healthFill');
-            healthFill.style.width = `${(gameState.health / gameState.maxHealth) * 100}%`;
+            }
             
-            const powerUpUI = document.getElementById('powerUpIndicator');
-            if (gameState.canFly) {
-                const timeLeft = Math.ceil((gameState.flyEndTime - Date.now()) / 1000);
-                powerUpUI.textContent = `Flying: ${timeLeft}s`;
-                powerUpUI.style.display = 'block';
-            } else {
-                powerUpUI.style.display = 'none';
+            // Sparkle globe collection
+            for (const globe of sparkleGlobes) {
+                if (globe.collected) continue;
+                
+                const globePos = globe.mesh.position;
+                const distance = playerGroup.position.distanceTo(globePos);
+                
+                if (distance < 2) {
+                    globe.collected = true;
+                    scene.remove(globe.mesh);
+                    gameState.score += 200;
+                    gameState.collectedGlobes++;
+                    updateScore();
+                    
+                    createEmotionBubble(playerGroup.position, "🌟", 1500);
+                    
+                    if (gameState.collectedGlobes === sparkleGlobes.length) {
+                        completeObjective("Collect all sparkle globes");
+                        // Unlock shape game when all globes collected
+                        setupShapeGame();
+                    }
+                }
+            }
+            
+            // Academy discovery
+            const academyDistance = playerGroup.position.distanceTo(academyGroup.position);
+            if (academyDistance < 15 && !isObjectiveCompleted("Find the Sparkle Academy")) {
+                completeObjective("Find the Sparkle Academy");
+            }
+
+            // Friendly NPC interaction
+            for (const npc of friendlyNPCs) {
+                const npcPos = npc.mesh.position;
+                const distance = playerGroup.position.distanceTo(npcPos);
+                const now = Date.now();
+
+                if (distance < 3 && (now - npc.lastInteractionTime > npc.interactionCooldown)) {
+                    if (!npc.met) {
+                        npc.met = true;
+                        gameState.metNPCs.add(npc.name);
+                        if (gameState.metNPCs.size === totalFriendlyNPCs) {
+                            completeObjective("Meet all friendly NPCs");
+                        }
+                    }
+                    
+                    showDialogue(npc.name);
+                    npc.lastInteractionTime = now;
+                }
+            }
+            
+            // Projectile collisions with ENEMIES
+            for (let i = projectiles.length - 1; i >= 0; i--) {
+                const projectile = projectiles[i];
+                
+                projectile.distance += projectile.speed;
+                if (projectile.distance >= projectile.maxDistance) {
+                    scene.remove(projectile.mesh);
+                    projectiles.splice(i, 1);
+                    continue;
+                }
+                
+                projectile.mesh.position.add(
+                    projectile.direction.clone().multiplyScalar(projectile.speed)
+                );
+                
+                for (let j = enemies.length - 1; j >= 0; j--) {
+                    const enemy = enemies[j];
+                    if (enemy.health <= 0) continue;
+                    
+                    const enemyPos = enemy.mesh.position;
+                    const distance = projectile.mesh.position.distanceTo(enemyPos);
+                    
+                    if (distance < 1) {
+                        enemy.health--;
+                        createEmotionBubble(enemyPos, "💢", 800);
+                        updateEnemyHealthBar(enemy);
+
+                        scene.remove(projectile.mesh);
+                        projectiles.splice(i, 1);
+                        
+                        if (enemy.health <= 0) {
+                            gameState.score += 100;
+                            updateScore();
+                            
+                            gameState.defeatedEnemyTypes[enemy.type] = true;
+                            completeObjective(`Defeat 1 ${enemy.type.charAt(0).toUpperCase() + enemy.type.slice(1)}`);
+                            
+                            scene.remove(enemy.healthBar.group);
+                            setTimeout(() => {
+                                scene.remove(enemy.mesh);
+                            }, 500);
+                            
+                            for(let k=0; k < (enemy.type === 'bully' ? 5 : 2); k++) {
+                                const newGem = new THREE.Mesh(gemGeometry, gemMaterial);
+                                newGem.position.set(enemyPos.x + (Math.random()-0.5)*1, enemyPos.y + 0.5, enemyPos.z + (Math.random()-0.5)*1);
+                                scene.add(newGem);
+                                gems.push({mesh: newGem, collected: false, rotationSpeed: Math.random() * 0.05 + 0.02});
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            // Stone projectile collisions with PLAYER
+            for (let i = stoneProjectiles.length - 1; i >= 0; i--) {
+                const stone = stoneProjectiles[i];
+                
+                stone.distance += stone.speed;
+                if (stone.distance >= stone.maxDistance) {
+                    scene.remove(stone.mesh);
+                    stoneProjectiles.splice(i, 1);
+                    continue;
+                }
+                
+                stone.mesh.position.add(
+                    stone.direction.clone().multiplyScalar(stone.speed)
+                );
+                
+                const distance = playerGroup.position.distanceTo(stone.mesh.position);
+                if (distance < 1.5) {
+                    const now = Date.now();
+                    if (now - gameState.lastDamageTime > gameState.invincibilityDuration) {
+                        takeDamage(stone.damage);
+                        createEmotionBubble(playerGroup.position, "💔", 800);
+                        
+                        const knockbackDirection = new THREE.Vector3().subVectors(
+                            playerGroup.position, stone.mesh.position
+                        ).normalize();
+                        
+                        playerPhysics.velocity.x = knockbackDirection.x * 0.2;
+                        playerPhysics.velocity.z = knockbackDirection.z * 0.2;
+                        playerPhysics.velocity.y = 0.1;
+                    }
+                    
+                    scene.remove(stone.mesh);
+                    stoneProjectiles.splice(i, 1);
+                }
+            }
+            
+            // Enemy collisions with player
+            for (const enemy of enemies) {
+                if (enemy.health <= 0) continue;
+                
+                const enemyPos = enemy.mesh.position;
+                const distance = playerGroup.position.distanceTo(enemyPos);
+                
+                if (distance < 1.0) {
+                    if (playerPhysics.isJumping && playerPhysics.velocity.y < 0) {
+                        // Jump attack
+                        enemy.health--;
+                        createEmotionBubble(enemyPos, "💥", 800);
+                        updateEnemyHealthBar(enemy);
+                        
+                        playerPhysics.velocity.y = playerPhysics.jumpForce * 0.7;
+                        playerPhysics.isJumping = true;
+
+                        if (enemy.health <= 0) {
+                            gameState.score += 100;
+                            updateScore();
+                            gameState.defeatedEnemyTypes[enemy.type] = true;
+                            completeObjective(`Defeat 1 ${enemy.type.charAt(0).toUpperCase() + enemy.type.slice(1)}`);
+                            scene.remove(enemy.healthBar.group);
+                            setTimeout(() => {
+                                scene.remove(enemy.mesh);
+                            }, 500);
+                            for(let k=0; k < (enemy.type === 'bully' ? 5 : 2); k++) {
+                                const newGem = new THREE.Mesh(gemGeometry, gemMaterial);
+                                newGem.position.set(enemyPos.x + (Math.random()-0.5)*1, enemyPos.y + 0.5, enemyPos.z + (Math.random()-0.5)*1);
+                                scene.add(newGem);
+                                gems.push({mesh: newGem, collected: false, rotationSpeed: Math.random() * 0.05 + 0.02});
+                            }
+                        }
+                    } else {
+                        const now = Date.now();
+                        if (now - gameState.lastDamageTime > gameState.invincibilityDuration) {
+                            takeDamage(enemy.damage);
+                            createEmotionBubble(playerGroup.position, "💔", 800);
+                            
+                            const knockbackDirection = new THREE.Vector3().subVectors(
+                                playerGroup.position, enemyPos
+                            ).normalize();
+                            
+                            playerPhysics.velocity.x = knockbackDirection.x * 0.2;
+                            playerPhysics.velocity.z = knockbackDirection.z * 0.2;
+                            playerPhysics.velocity.y = 0.1;
+                        }
+                    }
+                }
             }
         }
-        
+
+        function enterInterior(interior) {
+            gameState.inInterior = true;
+            gameState.currentInterior = interior;
+            lastInteriorInteractionTime = Date.now(); // Set the cooldown timer
+            
+            // Hide exterior
+            interior.exterior.visible = false;
+            
+            // Show interior
+            interior.interior.visible = true;
+            
+            // Position player inside
+            playerGroup.position.copy(interior.position);
+            playerGroup.position.z += 1.5;
+            
+            // Show interior UI and setup mini-game
+            document.getElementById('interiorView').style.display = 'block';
+            
+            // Check if shape game should be shown (after completing globes objective)
+            if (isObjectiveCompleted("Collect all sparkle globes")) {
+                setupShapeGame();
+            } else {
+                setupMemoryGame();
+            }
+        }
+
+        function exitInterior() {
+            if (!gameState.inInterior) return;
+            
+            // Hide interior
+            gameState.currentInterior.interior.visible = false;
+            
+            // Show exterior
+            gameState.currentInterior.exterior.visible = true;
+            
+            // Position player outside, offset from the door to prevent immediate re-entry
+            // The fix here is to set a new position that is far enough away from the door trigger
+            // This prevents the `checkCollisions` function from immediately re-triggering `enterInterior`.
+            const exitPosition = gameState.currentInterior.position.clone();
+            exitPosition.z += 4.5;
+            playerGroup.position.copy(exitPosition);
+            
+            // Hide interior UI
+            document.getElementById('interiorView').style.display = 'none';
+            document.getElementById('miniGameMessage').textContent = '';
+            document.getElementById('shapeMessage').textContent = '';
+            document.getElementById('memoryGame').style.display = 'grid';
+            document.getElementById('shapeGame').style.display = 'none';
+            
+            gameState.inInterior = false;
+            gameState.currentInterior = null;
+            
+            lastInteriorInteractionTime = Date.now(); // Reset cooldown on exit
+        }
+
+        function showDialogue(npcName) {
+            const dialogueBox = document.getElementById('dialogueBox');
+            const dialogues = npcDialogue[npcName];
+            const randomDialogue = dialogues[Math.floor(Math.random() * dialogues.length)];
+            
+            dialogueBox.textContent = `${npcName}: ${randomDialogue}`;
+            dialogueBox.style.display = 'block';
+            
+            setTimeout(() => {
+                dialogueBox.style.display = 'none';
+            }, 3000);
+        }
+
+        function showVictoryScreen() {
+            document.getElementById('finalScore').textContent = gameState.score;
+            document.getElementById('victoryScreen').style.display = 'block';
+        }
+
+        function takeDamage(amount) {
+            if (gameState.gameOver) return;
+            
+            gameState.health = Math.max(0, gameState.health - amount);
+            updateHealthBar();
+            
+            if (gameState.health <= 0) {
+                gameOver();
+            }
+            gameState.lastDamageTime = Date.now();
+        }
+
+        function gameOver() {
+            gameState.gameOver = true;
+            document.getElementById('gameOver').style.display = 'block';
+        }
+
+        function restartGame() {
+            gameState.health = gameState.maxHealth;
+            gameState.score = 0;
+            gameState.gameOver = false;
+            gameState.level = 1;
+            gameState.collectedGems = 0;
+            gameState.collectedGlobes = 0;
+            gameState.defeatedEnemyTypes = { turtle: false, goober: false, bully: false };
+            gameState.metNPCs.clear();
+            gameState.lastDamageTime = 0;
+            gameState.inInterior = false;
+            gameState.currentInterior = null;
+            gameState.shapeGame.gameActive = false;
+            gameState.shapeGame.score = 0;
+            gameState.allQuestsCompleted = false;
+
+            playerGroup.position.set(0, 1, 0);
+            playerPhysics.velocity.set(0, 0, 0);
+            playerPhysics.isGrounded = true;
+            playerPhysics.isJumping = false;
+            playerPhysics.canJump = true;
+            
+            // Clear existing game objects
+            gems.forEach(gem => scene.remove(gem.mesh));
+            gems.length = 0;
+            sparkleGlobes.forEach(globe => scene.remove(globe.mesh));
+            sparkleGlobes.length = 0;
+            enemies.forEach(enemy => {
+                if (enemy.healthBar && enemy.healthBar.group.parent) {
+                    enemy.healthBar.group.parent.remove(enemy.healthBar.group);
+                }
+                scene.remove(enemy.mesh)
+            });
+            enemies.length = 0;
+            friendlyNPCs.forEach(npc => scene.remove(npc.mesh));
+            friendlyNPCs.length = 0;
+            projectiles.forEach(p => scene.remove(p.mesh));
+            projectiles.length = 0;
+            stoneProjectiles.forEach(s => scene.remove(s.mesh));
+            stoneProjectiles.length = 0;
+            // The following loop is a bug, removing interiors is handled by their parent groups
+            // houseInteriors.forEach(interior => scene.remove(interior.interior));
+            houseInteriors.length = 0;
+            platforms.forEach(platform => scene.remove(platform.mesh));
+            platforms.length = 0;
+            paths.forEach(path => scene.remove(path));
+            paths.length = 0;
+            collidableObjects.length = 0; // Clear collision objects
+            buildings.length = 0; // Clear buildings
+
+            document.getElementById('interiorView').style.display = 'none';
+            document.getElementById('dialogueBox').style.display = 'none';
+            document.getElementById('memoryGame').style.display = 'grid';
+            document.getElementById('shapeGame').style.display = 'none';
+            document.getElementById('victoryScreen').style.display = 'none';
+
+            initGameContent();
+            updateHealthBar();
+            updateScore();
+            updateObjectivesList();
+            document.getElementById('gameOver').style.display = 'none';
+        }
+
+        document.getElementById('restartBtn').addEventListener('click', restartGame);
+
+        function updateHealthBar() {
+            const healthPercent = (gameState.health / gameState.maxHealth) * 100;
+            document.getElementById('healthFill').style.width = `${healthPercent}%`;
+        }
+
+        function updateEnemyHealthBar(enemy) {
+            const healthPercent = enemy.health / enemy.maxHealth;
+            enemy.healthBar.fill.scale.x = healthPercent;
+            enemy.healthBar.fill.position.x = -0.5 * (1 - healthPercent);
+
+            if (enemy.health <= 0) {
+                enemy.healthBar.group.visible = false;
+            } else {
+                enemy.healthBar.group.visible = true;
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = gameState.score;
+            document.getElementById('totalScore').textContent = gameState.score;
+            
+            let completionValue = 0;
+            completionValue += Math.min(gameState.collectedGems, 5) / 5 * 25;
+            if (gameState.defeatedEnemyTypes.turtle) completionValue += (25 / 3);
+            if (gameState.defeatedEnemyTypes.goober) completionValue += (25 / 3);
+            if (gameState.defeatedEnemyTypes.bully) completionValue += (25 / 3);
+            completionValue += (gameState.metNPCs.size / totalFriendlyNPCs) * 25;
+            if (isObjectiveCompleted("Find the Sparkle Academy")) completionValue += 25;
+            
+            document.getElementById('completion').textContent = `${Math.round(completionValue)}%`;
+            
+            if (gameState.score >= gameState.level * 1000) {
+                gameState.level++;
+                document.getElementById('gameLevel').textContent = gameState.level;
+                createEmotionBubble(playerGroup.position, "⬆️", 1500);
+                
+                gameState.health = Math.min(gameState.maxHealth, gameState.health + 30);
+                updateHealthBar();
+            }
+        }
+
+        function isObjectiveCompleted(objectiveText) {
+            return gameState.objectives.includes(`${objectiveText} (Completed)`);
+        }
+
+        function completeObjective(text) {
+            const index = gameState.objectives.indexOf(text);
+            const completedText = `${text} (Completed)`;
+
+            if (index !== -1 && gameState.objectives[index] !== completedText) {
+                if (text.startsWith("Defeat 1 ")) {
+                    const enemyType = text.replace("Defeat 1 ", "").toLowerCase();
+                    if (!gameState.defeatedEnemyTypes[enemyType]) return;
+                } else if (text === "Meet all friendly NPCs") {
+                    if (gameState.metNPCs.size < totalFriendlyNPCs) return;
+                }
+                
+                gameState.objectives[index] = completedText;
+                updateObjectivesList();
+                
+                if (text.includes("Collect") && !text.includes("Collect all sparkle globes")) {
+                    const itemName = text.split(" (Completed)")[0];
+                    if (!gameState.inventory.includes(itemName)) {
+                        gameState.inventory.push(itemName);
+                        
+                        const inventoryList = document.getElementById('inventoryList');
+                        inventoryList.innerHTML = '';
+                        gameState.inventory.forEach(item => {
+                            const li = document.createElement('li');
+                            li.textContent = item;
+                            inventoryList.appendChild(li);
+                        });
+                    }
+                }
+                
+                createEmotionBubble(playerGroup.position, "✅", 1500);
+                
+                // Check if all quests are completed
+                checkAllQuestsCompleted();
+            }
+        }
+
+        function checkAllQuestsCompleted() {
+            const allCompleted = gameState.objectives.every(obj => obj.includes("(Completed)"));
+            if (allCompleted && !gameState.allQuestsCompleted) {
+                gameState.allQuestsCompleted = true;
+                createEmotionBubble(playerGroup.position, "🎉", 2000);
+                
+                // Make the castle door sparkle
+                const doorPos = new THREE.Vector3(0, 1, -62.4);
+                createEmotionBubble(doorPos, "🚪", 3000);
+                
+                // Show message about the castle
+                setTimeout(() => {
+                    showDialogue("Quest Master", "Congratulations! You've completed all quests! Now go to the Sparkle Academy castle!");
+                }, 2000);
+            }
+        }
+
         function updateObjectivesList() {
-            const list = document.getElementById('objectivesList');
-            list.innerHTML = '';
-            Object.values(gameState.objectives).forEach(obj => {
+            const objectivesList = document.getElementById('objectivesList');
+            objectivesList.innerHTML = '';
+            gameState.objectives.forEach(obj => {
                 const item = document.createElement('div');
                 item.className = 'quest-item';
-                if (obj.complete) item.classList.add('completed');
                 
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'quest-checkbox';
-                checkbox.checked = obj.complete;
                 checkbox.disabled = true;
                 
+                if (obj.includes("(Completed)")) {
+                    checkbox.checked = true;
+                    item.classList.add('completed');
+                }
+                
                 const label = document.createElement('label');
-                label.textContent = `${obj.text} (${obj.current}/${obj.total})`;
+                label.textContent = obj;
                 
                 item.appendChild(checkbox);
                 item.appendChild(label);
-                list.appendChild(item);
+                objectivesList.appendChild(item);
             });
         }
-        
-        function showDialogue(npc) {
-            const dialogueBox = document.getElementById('dialogueBox');
-            const randomDialogue = npc.dialogue[Math.floor(Math.random() * npc.dialogue.length)];
-            dialogueBox.textContent = `${npc.name}: "${randomDialogue}"`;
-            dialogueBox.style.display = 'block';
-            setTimeout(() => dialogueBox.style.display = 'none', 4000);
-        }
 
-        let interactionPromptTimeout;
-        function showInteractionPrompt(text) {
-            const dialogueBox = document.getElementById('dialogueBox');
-            dialogueBox.textContent = text;
-            dialogueBox.style.display = 'block';
-            clearTimeout(interactionPromptTimeout);
-            interactionPromptTimeout = setTimeout(() => dialogueBox.style.display = 'none', 100);
-        }
-        
         function createEmotionBubble(position, emoji, duration) {
             const bubble = document.createElement('div');
             bubble.className = 'emotion-bubble';
             bubble.textContent = emoji;
-            tempVector.copy(position).project(camera);
-            bubble.style.left = `${(tempVector.x * .5 + .5) * canvas.clientWidth}px`;
-            bubble.style.top = `${(-tempVector.y * .5 + .5) * canvas.clientHeight}px`;
+            
+            const screenPos = position.clone().project(camera);
+            const x = (screenPos.x * .5 + .5) * canvas.clientWidth;
+            const y = (-screenPos.y * .5 + .5) * canvas.clientHeight;
+
+            bubble.style.left = `${x - 15}px`;
+            bubble.style.top = `${y - 15}px`;
+            
             document.getElementById('ui').appendChild(bubble);
+            
             setTimeout(() => {
                 bubble.style.opacity = '1';
-                bubble.style.transform = `translate(-50%, -150%)`;
+                bubble.style.transform = `translate(-50%, -100%) translateY(-50px)`;
             }, 10);
-            setTimeout(() => bubble.remove(), duration);
-        }
-        
-        function updateScore() {
-            document.getElementById('score').textContent = `💰 ${gameState.score}`;
-        }
-        
-        function updateHealthBar() {
-            document.getElementById('healthFill').style.width = `${(gameState.health / gameState.maxHealth) * 100}%`;
+            
+            setTimeout(() => {
+                bubble.style.opacity = '0';
+                setTimeout(() => {
+                    bubble.remove();
+                }, 300);
+            }, duration);
         }
 
-        // --- ENTITY UPDATES ---
-        function updateEntities() {
-            // Projectiles
-            for (let i = projectiles.length - 1; i >= 0; i--) {
-                const p = projectiles[i];
-                p.mesh.position.addScaledVector(p.direction, p.speed);
-                p.distance += p.speed;
-                if (p.distance > 50) {
-                    scene.remove(p.mesh);
-                    projectiles.splice(i, 1);
-                } else {
-                    for (let j = enemies.length - 1; j >= 0; j--) {
-                        const enemy = enemies[j];
-                        if(enemy.health > 0 && p.mesh.position.distanceTo(enemy.mesh.position) < 1) {
-                            enemy.health--;
-                            updateEnemyHealthBar(enemy);
-                            if (enemy.health <= 0) {
-                                scene.remove(enemy.mesh);
-                                gameState.score += enemy.score;
-                                updateScore();
-                                updateObjective('defeat_canrats', 1);
-                            }
-                            scene.remove(p.mesh);
-                            projectiles.splice(i, 1);
-                            break; 
-                        }
+        // Quest menu
+        document.getElementById('questBtn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            const questMenu = document.getElementById('questMenu');
+            questMenu.style.display = questMenu.style.display === 'block' ? 'none' : 'block';
+        });
+
+        document.querySelectorAll('.quest-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.quest-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.quest-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(`${tab.dataset.tab}Tab`).classList.add('active');
+            });
+        });
+
+        document.getElementById('questMenu').addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        document.getElementById('ui').addEventListener('click', (e) => {
+            const questMenu = document.getElementById('questMenu');
+            if (e.target.closest('#questMenu') === null && questMenu.style.display === 'block') {
+                questMenu.style.display = 'none';
+            }
+        });
+
+        // Initialize village layout
+        function initVillageLayout() {
+            // Create academy
+            academyGroup.position.set(0, 0, -70);
+            
+            // Create houses in a village pattern
+            createHouse(-20, 20);  // House 1
+            createHouse(20, 20);   // House 2
+            createHouse(0, 40);     // House 3
+            createHouse(-40, 0);    // House 4
+            createHouse(40, 0);     // House 5
+            createHouse(-20, 60);   // House 6
+            createHouse(20, 60);    // House 7
+            
+            // Create paths between buildings
+            createVillagePaths();
+            
+            // Create platforms (without stairs)
+            createPlatform(15, 25, 5, true);
+            createPlatform(-15, 25, 5, true);
+            createPlatform(0, 45, 7, true);
+        }
+
+        // Initialize game content
+        function initGameContent() {
+            // Initialize village layout
+            initVillageLayout();
+            
+            // Create gems
+            for (let i = 0; i < 20; i++) {
+                const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+                gem.position.set(
+                    (Math.random() - 0.5) * 180,
+                    1,
+                    (Math.random() - 0.5) * 180
+                );
+                gem.castShadow = true;
+                scene.add(gem);
+                gems.push({
+                    mesh: gem,
+                    collected: false,
+                    rotationSpeed: Math.random() * 0.02 + 0.01
+                });
+            }
+
+            // Create sparkle globes
+            for (let i = 0; i < 5; i++) {
+                const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+                globe.position.set(
+                    (Math.random() - 0.5) * 100,
+                    2,
+                    (Math.random() - 0.5) * 100
+                );
+                globe.castShadow = true;
+                scene.add(globe);
+                sparkleGlobes.push({
+                    mesh: globe,
+                    collected: false,
+                    rotationSpeed: Math.random() * 0.03 + 0.02,
+                    floatOffset: Math.random() * Math.PI * 2
+                });
+            }
+
+            // Create enemies
+            enemies.push(createTurtle((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80));
+            enemies.push(createTurtle((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80));
+            enemies.push(createTurtle((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80));
+            enemies.push(createTurtle((Math.random() - 0.5) * 80, (Math.random() - 0.5) * 80));
+            enemies.push(createGoober((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60));
+            enemies.push(createGoober((Math.random() - 0.5) * 60, (Math.random() - 0.5) * 60));
+            enemies.push(createBully((Math.random() - 0.5) * 40, (Math.random() - 0.5) * 40));
+
+            // Create friendly NPCs
+            friendlyNPCs.push(createFriendlyNPC(-30, 20, "Willow"));
+            friendlyNPCs.push(createFriendlyNPC(40, -10, "Finn"));
+            friendlyNPCs.push(createFriendlyNPC(-15, -40, "Luna"));
+            totalFriendlyNPCs = friendlyNPCs.length;
+
+            updateObjectivesList();
+        }
+
+        function updateNPCs(deltaTime) {
+            const now = Date.now();
+            for (const npc of friendlyNPCs) {
+                if (now - npc.lastMoveTime > npc.moveCooldown) {
+                    const targetPoint = npc.patrolPoints[npc.currentPatrolIndex];
+                    const distToTarget = npc.mesh.position.distanceTo(targetPoint);
+
+                    if (distToTarget < 1) {
+                        npc.currentPatrolIndex = (npc.currentPatrolIndex + 1) % npc.patrolPoints.length;
+                        npc.lastMoveTime = now;
+                        npc.moveCooldown = 2000 + Math.random() * 3000; // Random delay between 2-5 seconds
+                    }
+
+                    const direction = new THREE.Vector3().subVectors(
+                        npc.patrolPoints[npc.currentPatrolIndex], 
+                        npc.mesh.position
+                    ).normalize();
+                    
+                    npc.mesh.position.x += direction.x * npc.speed;
+                    npc.mesh.position.z += direction.z * npc.speed;
+                    
+                    // Face the direction they're moving
+                    if (direction.length() > 0) {
+                        const targetAngle = Math.atan2(direction.x, direction.z);
+                        npc.mesh.rotation.y = targetAngle;
                     }
                 }
             }
-            
-            // Enemies
-            enemies.forEach(enemy => {
-                if (enemy.health <= 0) return;
-                enemy.collider.setFromObject(enemy.mesh);
-                enemy.healthBar.group.lookAt(camera.position);
+        }
 
-                const distToPlayer = player.mesh.position.distanceTo(enemy.mesh.position);
-                if (distToPlayer < 15) { // Chase range
-                    tempVector.subVectors(player.mesh.position, enemy.mesh.position).normalize();
-                    enemy.mesh.position.addScaledVector(tempVector, enemy.speed);
-                    enemy.mesh.lookAt(player.mesh.position);
+        function updateCollectibles(deltaTime) {
+            // Rotate gems
+            for (const gem of gems) {
+                if (!gem.collected) {
+                    gem.mesh.rotation.y += gem.rotationSpeed;
+                    gem.mesh.position.y = 1 + Math.sin(Date.now() * 0.002) * 0.2;
+                }
+            }
+
+            // Float and rotate sparkle globes
+            for (const globe of sparkleGlobes) {
+                if (!globe.collected) {
+                    globe.mesh.rotation.y += globe.rotationSpeed;
+                    globe.mesh.position.y = 2 + Math.sin(Date.now() * 0.001 + globe.floatOffset) * 0.5;
+                }
+            }
+        }
+
+        // Animation loop
+        let lastTime = 0;
+        function animate(currentTime) {
+            if (!lastTime) lastTime = currentTime;
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            if (!gameState.gameOver) {
+                // Player movement
+                if (controls.move.active && !gameState.inInterior) {
+                    const deltaX = controls.move.currentX - controls.move.startX;
+                    const deltaY = controls.move.currentY - controls.move.startY;
+                    
+                    const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                    if (length > 10) {
+                        const moveX = deltaX / length;
+                        const moveZ = -deltaY / length;
+                        
+                        const cameraForward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+                        const cameraRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+                        
+                        const moveDirection = new THREE.Vector3()
+                            .addScaledVector(cameraForward, moveZ)
+                            .addScaledVector(cameraRight, moveX)
+                            .normalize();
+                        
+                        if (moveDirection.length() > 0) {
+                            const targetAngle = Math.atan2(moveDirection.x, moveDirection.z);
+                            playerGroup.rotation.y = targetAngle;
+                        }
+                        
+                        playerGroup.position.x += moveDirection.x * playerPhysics.moveSpeed;
+                        playerGroup.position.z += moveDirection.z * playerPhysics.moveSpeed;
+                    }
                 }
                 
-                if (distToPlayer < 1.2) {
-                     if (player.isJumping && player.velocity.y < 0) {
-                         enemy.health -= 2;
-                         player.velocity.y = player.jumpForce * 0.8;
-                     } else {
-                         takeDamage(enemy.damage);
-                     }
+                // Camera control
+                if (controls.camera.active && !gameState.inInterior) {
+                    const deltaX = controls.camera.currentX - controls.camera.startX;
+                    const deltaY = controls.camera.currentY - controls.camera.startY;
+                    
+                    if (Math.abs(deltaX) > 10 || Math.abs(deltaY) > 10) {
+                        cameraAngle += deltaX * 0.001;
+                        cameraDistance = Math.max(5, Math.min(15, cameraDistance - deltaY * 0.01));
+                    }
                 }
-            });
-            
-            // Gems
-            gems.forEach(gem => {
-                if(!gem.collected) gem.mesh.rotation.y += 0.02;
-            });
-
-            // Clouds
-            clouds.forEach(cloud => {
-                cloud.position.x += 0.01;
-                if (cloud.position.x > 100) {
-                    cloud.position.x = -100;
+                
+                // Apply gravity
+                playerPhysics.velocity.y += playerPhysics.gravity;
+                playerGroup.position.y += playerPhysics.velocity.y;
+                
+                // Update camera position
+                if (!gameState.inInterior) {
+                    camera.position.x = playerGroup.position.x + Math.sin(cameraAngle) * cameraDistance;
+                    camera.position.z = playerGroup.position.z + Math.cos(cameraAngle) * cameraDistance;
+                    camera.position.y = playerGroup.position.y + cameraHeight;
+                    camera.lookAt(playerGroup.position);
+                } else {
+                    // Camera for interior view
+                    camera.position.copy(playerGroup.position);
+                    camera.position.y += 2;
+                    camera.position.z += 2;
+                    camera.lookAt(playerGroup.position);
                 }
-            });
-        }
-        
-        function updateEnemyHealthBar(enemy) {
-            enemy.healthBar.group.visible = true;
-            enemy.healthBar.fill.scale.x = enemy.health / enemy.maxHealth;
-        }
-
-        // --- GAME LOOP ---
-        function animate() {
-            if (gameState.gameOver) {
-                requestAnimationFrame(animate);
-                return;
+                
+                checkCollisions();
+                updateEnemies(deltaTime);
+                updateNPCs(deltaTime);
+                updateCollectibles(deltaTime);
             }
-            
-            updatePlayerAndCamera();
-            if (!gameState.inInterior) {
-                checkCollisionsAndInteractions();
-                updateEntities();
-            }
-            updateUI();
             
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         }
-        
-        // --- EVENT LISTENERS & INITIAL CALLS ---
+
+        function updateEnemies(deltaTime) {
+            for (const enemy of enemies) {
+                if (enemy.health <= 0) {
+                    enemy.healthBar.group.visible = false;
+                    continue;
+                }
+                
+                const distanceToPlayer = playerGroup.position.distanceTo(enemy.mesh.position);
+                enemy.isChasing = distanceToPlayer < enemy.detectionRange;
+                
+                if (enemy.type === 'turtle') {
+                    const targetPoint = enemy.patrolPoints[enemy.currentPatrolIndex];
+                    const distToTarget = enemy.mesh.position.distanceTo(targetPoint);
+
+                    if (distToTarget < 1) {
+                        enemy.currentPatrolIndex = (enemy.currentPatrolIndex + 1) % enemy.patrolPoints.length;
+                    }
+
+                    const direction = new THREE.Vector3().subVectors(
+                        enemy.patrolPoints[enemy.currentPatrolIndex], enemy.mesh.position
+                    ).normalize();
+                    
+                    enemy.mesh.position.x += direction.x * enemy.speed;
+                    enemy.mesh.position.z += direction.z * enemy.speed;
+                    enemy.mesh.lookAt(enemy.mesh.position.clone().add(direction));
+                } else if (enemy.type === 'goober') {
+                    if (enemy.isChasing) {
+                        const direction = new THREE.Vector3().subVectors(
+                            playerGroup.position, enemy.mesh.position
+                        ).normalize();
+                        
+                        enemy.mesh.position.x += direction.x * enemy.speed;
+                        enemy.mesh.position.z += direction.z * enemy.speed;
+                        
+                        enemy.mesh.lookAt(playerGroup.position);
+                    } else {
+                        const returnDirection = new THREE.Vector3().subVectors(enemy.initialPosition, enemy.mesh.position);
+                        if (returnDirection.length() > 0.1) {
+                            returnDirection.normalize();
+                            enemy.mesh.position.x += returnDirection.x * enemy.speed * 0.5;
+                            enemy.mesh.position.z += returnDirection.z * enemy.speed * 0.5;
+                        }
+                    }
+                } else if (enemy.type === 'bully') {
+                    if (enemy.isChasing) {
+                        // Keep distance from player
+                        const direction = new THREE.Vector3().subVectors(
+                            playerGroup.position, enemy.mesh.position
+                        ).normalize();
+                        
+                        const desiredDistance = 5;
+                        const currentDistance = playerGroup.position.distanceTo(enemy.mesh.position);
+                        
+                        if (currentDistance > desiredDistance) {
+                            enemy.mesh.position.x += direction.x * enemy.speed;
+                            enemy.mesh.position.z += direction.z * enemy.speed;
+                        } else if (currentDistance < desiredDistance - 1) {
+                            enemy.mesh.position.x -= direction.x * enemy.speed;
+                            enemy.mesh.position.z -= direction.z * enemy.speed;
+                        }
+                        
+                        enemy.mesh.lookAt(playerGroup.position);
+                        
+                        // Shoot projectiles at player
+                        fireStoneProjectile(enemy);
+                    } else {
+                        const returnDirection = new THREE.Vector3().subVectors(enemy.initialPosition, enemy.mesh.position);
+                        if (returnDirection.length() > 0.1) {
+                            returnDirection.normalize();
+                            enemy.mesh.position.x += returnDirection.x * enemy.speed * 0.5;
+                            enemy.mesh.position.z += returnDirection.z * enemy.speed * 0.5;
+                        }
+                    }
+                }
+                enemy.healthBar.group.lookAt(camera.position);
+            }
+        }
+
+        // Start the game
+        setupControls();
+        initGameContent();
+        animate();
+
+        // Handle window resize
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
-        
-        document.getElementById('questBtn').addEventListener('click', (e) => {
-            e.stopPropagation();
-            const menu = document.getElementById('questMenu');
-            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
-        });
-
-        document.getElementById('restartBtn').addEventListener('click', () => {
-            document.getElementById('gameOver').style.display = 'none';
-            Object.assign(gameState, {score: 0, health: 100, gameOver: false, canFly: false});
-            player.mesh.position.set(0, 0.6, 0);
-            updateHealthBar();
-            updateScore();
-            initGameContent(1);
-        });
-
-        document.getElementById('nextLevelBtn').addEventListener('click', () => {
-            document.getElementById('levelComplete').style.display = 'none';
-            const transition = document.getElementById('levelTransition');
-            transition.style.opacity = '1';
-            
-            setTimeout(() => {
-                initGameContent(gameState.level + 1);
-                 transition.style.opacity = '0';
-            }, 1500);
-        });
-        
-        createWorld();
-        setupControls();
-        initGameContent(1);
-        animate();
     </script>
 </body>
 </html>
